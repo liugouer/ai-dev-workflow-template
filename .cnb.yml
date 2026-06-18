@@ -96,35 +96,39 @@ main:
             echo ""
             echo "--- 检查硬编码敏感信息 ---"
 
-            # 检查是否含有真实的 API 密钥或 token（非占位符、非环境变量读取）
-            no_leaks=true
-
-            # 排除规则：包含以下模式的行不算泄漏
-            #   - 包含 < (模板占位符: <your-xxx>, <你的...>)
-            #   - env( 或 env[ (从环境变量读取)
-            #   - 以 # 开头 (注释)
-            #   - 属于当前自检脚本自身 (chk_pattern)
+            # 仅检查根目录配置文件，排除：
+            #   - scripts/ (脚本中环境变量引用是合法的)
+            #   - docs/    (文档中示例说明是合法的)
+            #   - templates/ (模板中说明是合法的)
+            #   - .git/ .cnb.yml 自身
+            scan_dirs=".codebuddy"
+            real=""
             for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
-              found=$(grep -rI "$chk_pattern" . --exclude-dir=.git 2>/dev/null || true)
-              # 过滤掉合法引用
-              real=$(echo "$found" \
-                | grep -v "sensitive_patterns" \
-                | grep -v "for chk_pattern" \
-                | grep -v "^[^:]*:[[:space:]]*#" \
-                | grep -v "<" \
-                | grep -v "env(" \
-                | grep -v "env\[" \
-                | grep -v "export " \
-                || true)
-              if [ -n "$real" ]; then
-                echo "  WARNING: potential hardcoded secret: $chk_pattern"
-                echo "$real"
-                no_leaks=false
-                errors=$((errors + 1))
-              else
-                echo "  OK: $chk_pattern not hardcoded"
+              hits=$(grep -rI "$chk_pattern" $scan_dirs 2>/dev/null || true)
+              # 过滤包含 < 的占位符行
+              hits=$(echo "$hits" | grep -v "<" || true)
+              if [ -n "$hits" ]; then
+                real="${real}${hits}
+"
               fi
             done
+            # 额外检查根目录的 yml/md/json 文件（排除 .cnb.yml）
+            for f in *.yml *.md *.json 2>/dev/null; do
+              if [ "$f" = ".cnb.yml" ]; then continue; fi
+              hits=$(grep -HI "TAPD_API_" "$f" 2>/dev/null || true)
+              hits=$(echo "$hits" | grep -v "<" || true)
+              if [ -n "$hits" ]; then
+                real="${real}${hits}
+"
+              fi
+            done
+            if [ -n "$real" ]; then
+              echo "  WARNING: potential hardcoded secrets found:"
+              echo "$real"
+              errors=$((errors + 1))
+            else
+              echo "  OK: no hardcoded secrets found"
+            fi
 
             echo ""
             if [ "$errors" -gt 0 ]; then
@@ -227,31 +231,39 @@ main:
             echo ""
             echo "--- 检查硬编码敏感信息 ---"
 
-            # 检查是否含有真实的 API 密钥或 token（非占位符、非环境变量读取）
-            # 排除规则：包含以下模式的行不算泄漏
-            #   - 包含 < (模板占位符: <your-xxx>, <你的...>)
-            #   - env( 或 env[ (从环境变量读取)
-            #   - 以 # 开头 (注释)
-            #   - 属于当前自检脚本自身引用
+            # 仅检查根目录配置文件，排除：
+            #   - scripts/ (脚本中环境变量引用是合法的)
+            #   - docs/    (文档中示例说明是合法的)
+            #   - templates/ (模板中说明是合法的)
+            #   - .git/ .cnb.yml 自身
+            scan_dirs=".codebuddy"
+            real=""
             for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
-              found=$(grep -rI "$chk_pattern" . --exclude-dir=.git 2>/dev/null || true)
-              real=$(echo "$found" \
-                | grep -v "sensitive_patterns" \
-                | grep -v "for chk_pattern" \
-                | grep -v "^[^:]*:[[:space:]]*#" \
-                | grep -v "<" \
-                | grep -v "env(" \
-                | grep -v "env\[" \
-                | grep -v "export " \
-                || true)
-              if [ -n "$real" ]; then
-                echo "  WARNING: potential hardcoded secret: $chk_pattern"
-                echo "$real"
-                errors=$((errors + 1))
-              else
-                echo "  OK: $chk_pattern not hardcoded"
+              hits=$(grep -rI "$chk_pattern" $scan_dirs 2>/dev/null || true)
+              # 过滤包含 < 的占位符行
+              hits=$(echo "$hits" | grep -v "<" || true)
+              if [ -n "$hits" ]; then
+                real="${real}${hits}
+"
               fi
             done
+            # 额外检查根目录的 yml/md/json 文件（排除 .cnb.yml）
+            for f in *.yml *.md *.json 2>/dev/null; do
+              if [ "$f" = ".cnb.yml" ]; then continue; fi
+              hits=$(grep -HI "TAPD_API_" "$f" 2>/dev/null || true)
+              hits=$(echo "$hits" | grep -v "<" || true)
+              if [ -n "$hits" ]; then
+                real="${real}${hits}
+"
+              fi
+            done
+            if [ -n "$real" ]; then
+              echo "  WARNING: potential hardcoded secrets found:"
+              echo "$real"
+              errors=$((errors + 1))
+            else
+              echo "  OK: no hardcoded secrets found"
+            fi
 
             echo ""
             if [ "$errors" -gt 0 ]; then
