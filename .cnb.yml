@@ -1,43 +1,246 @@
-# AI 研发自动化工作流 CNB 流水线模板
-# 使用时请替换所有 <xxx> 占位符
+# 模板仓库自检流水线
+# 本流水线仅用于检查模板文件完整性，不执行业务测试或 TAPD 操作。
+#
+# 新业务项目请使用 templates/cnb-pipeline-template.yml
 
 main:
   pull_request:
-    - name: AI workflow MR quality gate
+    - name: Template integrity validation
       docker:
-        image: <your-docker-image>   # 如 python:3.11-slim / node:20-alpine / maven:3.9
+        image: python:3.11-slim
       stages:
-        - name: Install dependencies
+        - name: Validate template files
           script: |
-            <install-commands>       # 如 pip install -r requirements.txt / npm ci
+            set -e
+            echo "=== 模板仓库自检 ==="
 
-        - name: Run tests with coverage
-          script: |
-            <test-commands>          # 如 pytest --cov=src --cov-report=term-missing --cov-report=xml
+            errors=0
 
-        - name: Check coverage gate
-          script: |
-            python scripts/check_coverage.py
+            echo ""
+            echo "--- 必须存在的模板文件 ---"
+
+            required_files="
+              README.md
+              NEW_PROJECT_SETUP.md
+              workflow.config.example.yml
+              templates/autonomous-workflow-rules-template.mdc
+              templates/newdev-command-template.md
+              templates/tapd-requirement-template.md
+              templates/cnb-pipeline-template.yml
+              docs/workflow-template/REUSE_CHECKLIST.md
+            "
+
+            for f in $required_files; do
+              if [ -f "$f" ]; then
+                echo "  OK: $f"
+              else
+                echo "  MISSING: $f"
+                errors=$((errors + 1))
+              fi
+            done
+
+            echo ""
+            echo "--- templates/knowledge-files/ 目录 ---"
+            if [ -d "templates/knowledge-files" ]; then
+              echo "  OK: templates/knowledge-files/ exists"
+            else
+              echo "  MISSING: templates/knowledge-files/ does not exist"
+              errors=$((errors + 1))
+            fi
+
+            echo ""
+            echo "--- 不应存在的业务目录 ---"
+
+            forbidden_dirs="
+              src
+              tests
+              specs
+              reports
+            "
+
+            for d in $forbidden_dirs; do
+              if [ -d "$d" ]; then
+                echo "  WARNING: $d/ should not exist in template repo"
+                errors=$((errors + 1))
+              else
+                echo "  OK: $d/ not found (as expected)"
+              fi
+            done
+
+            echo ""
+            echo "--- 不应存在的构建产物 ---"
+
+            forbidden_files="
+              coverage.xml
+              .coverage
+            "
+
+            for f in $forbidden_files; do
+              if [ -f "$f" ]; then
+                echo "  WARNING: $f should not exist in template repo"
+                errors=$((errors + 1))
+              else
+                echo "  OK: $f not found (as expected)"
+              fi
+            done
+
+            echo ""
+            echo "--- 不应存在的缓存目录 ---"
+            if [ -d ".pytest_cache" ]; then
+              echo "  WARNING: .pytest_cache/ should not exist in template repo"
+              errors=$((errors + 1))
+            else
+              echo "  OK: .pytest_cache/ not found (as expected)"
+            fi
+
+            echo ""
+            echo "--- 检查硬编码敏感信息 ---"
+
+            # 检查是否含有明显的 TAPD API 密钥或 token 模式
+            sensitive_patterns="
+              TAPD_API_USER
+              TAPD_API_PASSWORD
+              TAPD_API_TOKEN
+            "
+
+            for pattern in $sensitive_patterns; do
+              # 只在非 .git 目录、非 .cnb.yml 中检查
+              found=$(grep -r "$pattern" . --include="*.yml" --include="*.yaml" --include="*.py" --include="*.md" --include="*.json" --exclude-dir=.git 2>/dev/null || true)
+              # 过滤掉模板文件中的注释行和示例说明
+              real_leaks=$(echo "$found" | grep -v "^#" | grep -v "<your" | grep -v "example" | grep -v "占位" | grep -v "替换" || true)
+              if [ -n "$real_leaks" ]; then
+                echo "  WARNING: found potential hardcoded $pattern"
+                echo "$real_leaks"
+                errors=$((errors + 1))
+              else
+                echo "  OK: no hardcoded $pattern found"
+              fi
+            done
+
+            echo ""
+            if [ "$errors" -gt 0 ]; then
+              echo "=== 自检失败: $errors 个问题 ==="
+              exit 1
+            else
+              echo "=== 自检全部通过 ==="
+              exit 0
+            fi
 
   push:
-    - name: Main branch verification
+    - name: Template integrity validation
       docker:
-        image: <your-docker-image>
-      imports:
-        - https://cnb.cool/<your-org>/<your-secrets-repo>/-/blob/main/tapd-env.yml
+        image: python:3.11-slim
       stages:
-        - name: Install dependencies
+        - name: Validate template files
           script: |
-            <install-commands>
+            set -e
+            echo "=== 模板仓库自检 ==="
 
-        - name: Run tests with coverage
-          script: |
-            <test-commands>
+            errors=0
 
-        - name: Check coverage gate
-          script: |
-            python scripts/check_coverage.py
+            echo ""
+            echo "--- 必须存在的模板文件 ---"
 
-        - name: Archive TAPD result
-          script: |
-            python scripts/tapd_archive.py
+            required_files="
+              README.md
+              NEW_PROJECT_SETUP.md
+              workflow.config.example.yml
+              templates/autonomous-workflow-rules-template.mdc
+              templates/newdev-command-template.md
+              templates/tapd-requirement-template.md
+              templates/cnb-pipeline-template.yml
+              docs/workflow-template/REUSE_CHECKLIST.md
+            "
+
+            for f in $required_files; do
+              if [ -f "$f" ]; then
+                echo "  OK: $f"
+              else
+                echo "  MISSING: $f"
+                errors=$((errors + 1))
+              fi
+            done
+
+            echo ""
+            echo "--- templates/knowledge-files/ 目录 ---"
+            if [ -d "templates/knowledge-files" ]; then
+              echo "  OK: templates/knowledge-files/ exists"
+            else
+              echo "  MISSING: templates/knowledge-files/ does not exist"
+              errors=$((errors + 1))
+            fi
+
+            echo ""
+            echo "--- 不应存在的业务目录 ---"
+
+            forbidden_dirs="
+              src
+              tests
+              specs
+              reports
+            "
+
+            for d in $forbidden_dirs; do
+              if [ -d "$d" ]; then
+                echo "  WARNING: $d/ should not exist in template repo"
+                errors=$((errors + 1))
+              else
+                echo "  OK: $d/ not found (as expected)"
+              fi
+            done
+
+            echo ""
+            echo "--- 不应存在的构建产物 ---"
+
+            forbidden_files="
+              coverage.xml
+              .coverage
+            "
+
+            for f in $forbidden_files; do
+              if [ -f "$f" ]; then
+                echo "  WARNING: $f should not exist in template repo"
+                errors=$((errors + 1))
+              else
+                echo "  OK: $f not found (as expected)"
+              fi
+            done
+
+            echo ""
+            echo "--- 不应存在的缓存目录 ---"
+            if [ -d ".pytest_cache" ]; then
+              echo "  WARNING: .pytest_cache/ should not exist in template repo"
+              errors=$((errors + 1))
+            else
+              echo "  OK: .pytest_cache/ not found (as expected)"
+            fi
+
+            echo ""
+            echo "--- 检查硬编码敏感信息 ---"
+
+            sensitive_patterns="
+              TAPD_API_USER
+              TAPD_API_PASSWORD
+              TAPD_API_TOKEN
+            "
+
+            for pattern in $sensitive_patterns; do
+              found=$(grep -r "$pattern" . --include="*.yml" --include="*.yaml" --include="*.py" --include="*.md" --include="*.json" --exclude-dir=.git 2>/dev/null || true)
+              real_leaks=$(echo "$found" | grep -v "^#" | grep -v "<your" | grep -v "example" | grep -v "占位" | grep -v "替换" || true)
+              if [ -n "$real_leaks" ]; then
+                echo "  WARNING: found potential hardcoded $pattern"
+                echo "$real_leaks"
+                errors=$((errors + 1))
+              else
+                echo "  OK: no hardcoded $pattern found"
+              fi
+            done
+
+            echo ""
+            if [ "$errors" -gt 0 ]; then
+              echo "=== 自检失败: $errors 个问题 ==="
+              exit 1
+            else
+              echo "=== 自检全部通过 ==="
+              exit 0
+            fi
