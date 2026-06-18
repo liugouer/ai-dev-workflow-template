@@ -40,7 +40,7 @@ TAPD 需求 / 自动创建需求
 | Spec 规范 | 设计文档模板 |
 | AI Review 规范 | 代码审查标准 |
 | 质量门禁规范 | 覆盖率>=90%、AI Review>=95 |
-| CNB 流水线结构 | pull_request 质量门禁 + push 归档 |
+| CNB 流水线结构 | pull_request 质量门禁 + push 归档（模板见 templates/cnb-pipeline-template.yml） |
 
 ### ⚠️ 必须替换
 
@@ -75,7 +75,7 @@ TAPD 需求 / 自动创建需求
 
 ```
 ai-dev-workflow-template/
-├── .cnb.yml                             # CNB 流水线模板
+├── .cnb.yml                             # 模板仓库自检流水线（不可用于业务项目）
 ├── workflow.config.example.yml          # 工作流配置示例
 ├── README.md                            # 本文件
 ├── NEW_PROJECT_SETUP.md                 # 新项目初始化指南
@@ -104,6 +104,7 @@ ai-dev-workflow-template/
 │   ├── tapd-requirement-template.md
 │   ├── newdev-command-template.md
 │   ├── autonomous-workflow-rules-template.mdc
+│   ├── cnb-pipeline-template.yml        # CNB 流水线模板（新业务项目复制此文件）
 │   └── knowledge-files/
 └── reports/                             # 归档报告（.gitignore 忽略）
 ```

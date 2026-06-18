@@ -22,7 +22,9 @@ cd <新项目名>
 
 ```bash
 # 假设本模板仓库 clone 到 ../ai-dev-workflow-template
-cp ../ai-dev-workflow-template/.cnb.yml ./
+# 注意：不要复制模板仓库根目录的 .cnb.yml（那是模板仓库自检流水线）
+# 应复制业务项目流水线模板
+cp ../ai-dev-workflow-template/templates/cnb-pipeline-template.yml .cnb.yml
 cp ../ai-dev-workflow-template/workflow.config.example.yml ./
 cp ../ai-dev-workflow-template/.gitignore ./
 
@@ -145,12 +147,17 @@ imports:
 
 ## 步骤 10：配置 .cnb.yml 流水线
 
+> **重要：** 模板仓库根目录的 `.cnb.yml` 是模板仓库自检流水线，不能直接用于业务项目。
+> 新项目已在步骤 2 中从 `templates/cnb-pipeline-template.yml` 复制了正确的流水线模板。
+
+将 `.cnb.yml` 中的所有占位符替换为实际值：
+
 | 占位符 | 替换为 |
 |--------|--------|
-| `<your-docker-image>` | 运行环境镜像 |
-| `<install-commands>` | 依赖安装命令 |
-| `<test-commands>` | 测试 + 覆盖率命令 |
-| `<your-org>/<your-secrets-repo>` | 密钥仓库路径 |
+| `<your-docker-image>` | 运行环境镜像（如 python:3.11-slim） |
+| `<install-commands>` | 依赖安装命令（如 pip install -r requirements.txt） |
+| `<test-commands>` | 测试 + 覆盖率命令（如 pytest --cov=src --cov-report=term-missing --cov-report=xml） |
+| `<your-org>/<your-secrets-repo>` | 密钥仓库路径（如 liugouer-2026/ai-tryon-workflow-secrets） |
 
 ## 步骤 11：冒烟测试验证
 

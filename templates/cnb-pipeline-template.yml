@@ -1,0 +1,47 @@
+# AI 研发自动化工作流 CNB 流水线模板
+# 使用时请替换所有 <xxx> 占位符
+#
+# 使用方式：
+#   复制本文件到新项目根目录，重命名为 .cnb.yml
+#   然后替换所有 <xxx> 占位符为实际值
+
+main:
+  pull_request:
+    - name: AI workflow MR quality gate
+      docker:
+        image: <your-docker-image>   # 如 python:3.11-slim / node:20-alpine / maven:3.9
+      stages:
+        - name: Install dependencies
+          script: |
+            <install-commands>       # 如 pip install -r requirements.txt / npm ci
+
+        - name: Run tests with coverage
+          script: |
+            <test-commands>          # 如 pytest --cov=src --cov-report=term-missing --cov-report=xml
+
+        - name: Check coverage gate
+          script: |
+            python scripts/check_coverage.py
+
+  push:
+    - name: Main branch verification
+      docker:
+        image: <your-docker-image>
+      imports:
+        - https://cnb.cool/<your-org>/<your-secrets-repo>/-/blob/main/tapd-env.yml
+      stages:
+        - name: Install dependencies
+          script: |
+            <install-commands>
+
+        - name: Run tests with coverage
+          script: |
+            <test-commands>
+
+        - name: Check coverage gate
+          script: |
+            python scripts/check_coverage.py
+
+        - name: Archive TAPD result
+          script: |
+            python scripts/tapd_archive.py
