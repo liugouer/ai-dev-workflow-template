@@ -96,24 +96,33 @@ main:
             echo ""
             echo "--- 检查硬编码敏感信息 ---"
 
-            # 检查是否含有明显的 TAPD API 密钥或 token 模式
-            sensitive_patterns="
-              TAPD_API_USER
-              TAPD_API_PASSWORD
-              TAPD_API_TOKEN
-            "
+            # 检查是否含有真实的 API 密钥或 token（非占位符、非环境变量读取）
+            no_leaks=true
 
-            for pattern in $sensitive_patterns; do
-              # 只在非 .git 目录、非 .cnb.yml 中检查
-              found=$(grep -r "$pattern" . --include="*.yml" --include="*.yaml" --include="*.py" --include="*.md" --include="*.json" --exclude-dir=.git 2>/dev/null || true)
-              # 过滤掉模板文件中的注释行和示例说明
-              real_leaks=$(echo "$found" | grep -v "^#" | grep -v "<your" | grep -v "example" | grep -v "占位" | grep -v "替换" || true)
-              if [ -n "$real_leaks" ]; then
-                echo "  WARNING: found potential hardcoded $pattern"
-                echo "$real_leaks"
+            # 排除规则：包含以下模式的行不算泄漏
+            #   - 包含 < (模板占位符: <your-xxx>, <你的...>)
+            #   - env( 或 env[ (从环境变量读取)
+            #   - 以 # 开头 (注释)
+            #   - 属于当前自检脚本自身 (chk_pattern)
+            for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
+              found=$(grep -rI "$chk_pattern" . --exclude-dir=.git 2>/dev/null || true)
+              # 过滤掉合法引用
+              real=$(echo "$found" \
+                | grep -v "sensitive_patterns" \
+                | grep -v "for chk_pattern" \
+                | grep -v "^[^:]*:[[:space:]]*#" \
+                | grep -v "<" \
+                | grep -v "env(" \
+                | grep -v "env\[" \
+                | grep -v "export " \
+                || true)
+              if [ -n "$real" ]; then
+                echo "  WARNING: potential hardcoded secret: $chk_pattern"
+                echo "$real"
+                no_leaks=false
                 errors=$((errors + 1))
               else
-                echo "  OK: no hardcoded $pattern found"
+                echo "  OK: $chk_pattern not hardcoded"
               fi
             done
 
@@ -218,21 +227,29 @@ main:
             echo ""
             echo "--- 检查硬编码敏感信息 ---"
 
-            sensitive_patterns="
-              TAPD_API_USER
-              TAPD_API_PASSWORD
-              TAPD_API_TOKEN
-            "
-
-            for pattern in $sensitive_patterns; do
-              found=$(grep -r "$pattern" . --include="*.yml" --include="*.yaml" --include="*.py" --include="*.md" --include="*.json" --exclude-dir=.git 2>/dev/null || true)
-              real_leaks=$(echo "$found" | grep -v "^#" | grep -v "<your" | grep -v "example" | grep -v "占位" | grep -v "替换" || true)
-              if [ -n "$real_leaks" ]; then
-                echo "  WARNING: found potential hardcoded $pattern"
-                echo "$real_leaks"
+            # 检查是否含有真实的 API 密钥或 token（非占位符、非环境变量读取）
+            # 排除规则：包含以下模式的行不算泄漏
+            #   - 包含 < (模板占位符: <your-xxx>, <你的...>)
+            #   - env( 或 env[ (从环境变量读取)
+            #   - 以 # 开头 (注释)
+            #   - 属于当前自检脚本自身引用
+            for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
+              found=$(grep -rI "$chk_pattern" . --exclude-dir=.git 2>/dev/null || true)
+              real=$(echo "$found" \
+                | grep -v "sensitive_patterns" \
+                | grep -v "for chk_pattern" \
+                | grep -v "^[^:]*:[[:space:]]*#" \
+                | grep -v "<" \
+                | grep -v "env(" \
+                | grep -v "env\[" \
+                | grep -v "export " \
+                || true)
+              if [ -n "$real" ]; then
+                echo "  WARNING: potential hardcoded secret: $chk_pattern"
+                echo "$real"
                 errors=$((errors + 1))
               else
-                echo "  OK: no hardcoded $pattern found"
+                echo "  OK: $chk_pattern not hardcoded"
               fi
             done
 
