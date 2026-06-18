@@ -1,0 +1,39 @@
+---
+description: 
+globs:
+alwaysApply: true
+---
+# GitBranchRules
+
+## 分支命名目标
+
+所有 AI 自动创建的分支必须可追踪到 TAPD 需求、迭代和最小功能单元。
+
+## 命名模板
+
+feature/{BIZ_PREFIX}-v{version}_{feature_desc}
+
+## 当前项目规则
+
+biz_prefix：
+
+{BIZ_PREFIX}
+
+version：
+
+从 TAPD 迭代名称中提取，例如 {DEFAULT_ITERATION} 提取版本号。
+
+feature_desc：
+
+从需求标题中提取英文短语，使用小写和连字符。
+
+## Git 操作规则
+
+1. 创建分支前必须确保当前代码基于 main 或 master 最新版本。
+2. 创建分支后才能修改代码。
+3. 每次提交信息必须包含 TAPD ID。
+4. 提交信息格式：
+
+feat({BIZ_PREFIX}): implement <feature desc> for TAPD-{短需求ID}
+
+5. 禁止直接在 main 或 master 分支开发。

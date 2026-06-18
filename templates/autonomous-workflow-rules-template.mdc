@@ -1,0 +1,154 @@
+---
+description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档
+globs:
+alwaysApply: true
+---
+
+# AutonomousWorkflowRules
+
+## 1. 目标
+
+本规则用于驱动 CodeBuddy 自动完成「{BUSINESS_NAME}」的 AI 研发闭环。
+
+CodeBuddy 必须支持两种模式：
+
+1. 已有 TAPD 需求开发模式
+   用户输入需求 ID 后，CodeBuddy 自动读取 TAPD 需求并完成研发闭环。
+
+2. TAPD 需求创建并开发模式
+   用户输入需求主题后，CodeBuddy 自动生成 TAPD 需求、创建 TAPD 需求，并立即启动研发闭环。
+
+最终目标：
+TAPD 需求创建或读取 → 判断最小需求单元 → 生成 Spec → 创建功能分支 → 代码实现 → 测试与覆盖率检查 → AI Code Review → 自动修复 → 生成归档 JSON → 提交并推送代码 → 创建 MR → 等待 CNB 状态检查 → 状态检查通过后自动合并 MR → 合并后确认 CNB main push 流水线通过 → 确认 TAPD 状态已归档为「已完成」
+
+---
+
+## 2. 默认参数
+
+* TAPD 项目 ID：{TAPD_WORKSPACE_ID}
+* TAPD 需求类型：stories
+* TAPD 初始状态：待AI分析
+* 默认迭代：{DEFAULT_ITERATION}
+* 默认优先级：高
+* 目标分支：main
+* 合并策略：质量门禁通过后自动合并
+* 覆盖率门禁：>= 90%
+* AI Code Review 门禁：>= 95
+* Critical 问题：必须暂停并等待人工确认
+* 密钥处理：禁止写入代码，只能从 MCP 配置、环境变量或 CNB 密钥读取
+
+---
+
+## 3. 触发方式
+
+### 3.1 已有 TAPD 需求开发
+
+以下输入都识别为「读取已有 TAPD 需求并启动自动研发闭环」：
+1. 开发需求 {id}
+2. 跑需求 {id}
+3. 启动需求 {id}
+4. 处理 TAPD {id}
+5. TAPD-{id}
+6. 需求ID：{id}
+7. 开发下一个需求
+8. 开发下一个待AI分析需求
+9. 用户粘贴 TAPD 需求链接
+
+### 3.2 创建 TAPD 需求并自动开发
+
+以下输入都识别为「创建 TAPD 需求并启动自动研发闭环」：
+1. /newdev xxx
+2. /newdev --yes xxx
+3. 创建并开发需求：xxx
+4. 无需确认，创建并开发需求：xxx
+
+---
+
+## 4. 自动研发闭环执行流程
+
+### 4.1 准备阶段
+1. 读取 `.codebuddy/knowledge` 下的项目知识库
+2. 读取 `.codebuddy/rules` 下的全部规则
+3. 读取 TAPD 需求完整内容
+4. 确认当前本地代码已同步 main
+5. 判断需求是否为最小需求单元，过大则暂停并输出拆分建议
+
+### 4.2 分支规则
+- 命名模板：`feature/{BIZ_PREFIX}-v{version}_{feature_desc}`
+- 不能使用中文，不能直接在 main 上开发
+
+### 4.3 Spec 阶段
+- Spec 文件：`specs/tapd-{短需求ID}-{feature-name}-spec.md`
+- Spec 必须包含：需求背景、最小需求范围、本次不做、接口设计、文件修改计划、测试计划、验收标准、风险点、回滚方案
+
+### 4.4 实现阶段
+- 只实现 TAPD 需求范围内的功能
+- 不实现「本次不做」中的功能
+- 不破坏已有 API，不引入无必要依赖
+
+### 4.5 测试阶段
+- 测试命令：pytest --cov=src --cov-report=term-missing --cov-report=xml
+- 覆盖率 >= 90%，禁止无断言测试
+- 失败时自动修复，同一问题连续修复 3 次仍失败则暂停
+
+### 4.6 AI Code Review 阶段
+- AI Review 分数 >= 95，不得存在 Critical 问题
+- Low / Medium 问题可以自动修复
+- Critical 问题必须暂停
+
+### 4.7 TAPD 归档 JSON 阶段
+- 文件：`reports/tapd-{短需求ID}-archive.json`
+- 必须使用完整 story_id
+
+---
+
+## 5. TAPD 状态流转
+
+待AI分析 → AI生成Spec中 → AI开发中 → AI测试中 → AI审核中 → AI自动修复中（按需） → 待自动合并 → 已合并 → 已完成
+
+每次状态更新后必须重新读取确认，最多重试 3 次。
+
+---
+
+## 6. MR 与自动合并规则
+
+满足以下**全部条件**时自动合并：
+
+1. pytest 全部通过
+2. 覆盖率 >= 90%
+3. AI Code Review >= 95
+4. 无 Critical 问题
+5. MR 无冲突（mergeable_state = "mergeable"）
+6. TAPD 归档 JSON 已生成且使用完整 story_id
+7. 目标分支为 main
+8. MR 不是 WIP
+
+不满足任一条件时禁止自动合并。
+
+---
+
+## 7. 禁止行为
+
+1. 禁止无质量门禁自动合并 MR
+2. 禁止跳过 Spec、测试、AI Code Review
+3. 禁止忽略 Critical 问题
+4. 禁止实现 TAPD 需求之外的功能
+5. 禁止把密钥写入代码
+6. 禁止直接 push 到受保护的 main 分支
+7. 禁止删除有效测试来规避失败
+8. 禁止为了覆盖率写无断言测试
+
+---
+
+## 8. 最终输出格式
+
+完整闭环完成后输出：
+
+1. TAPD 需求标题 / 短需求 ID / 完整 story_id
+2. 状态流转记录
+3. 分支名 / Spec 路径
+4. 测试结果 / 覆盖率 / AI Review 分数
+5. Review 报告路径 / 归档 JSON 路径
+6. MR 链接 / 是否自动合并
+7. 流水线状态 / TAPD 归档状态
+8. 如果失败：失败阶段、原因、建议处理方式

@@ -1,0 +1,109 @@
+# AI 研发自动化工作流配置示例
+# 使用时复制为 workflow.config.yml 并替换所有 <xxx> 占位符
+
+# ── TAPD 配置 ──
+tapd:
+  workspace_id: "<你的TAPD项目ID>"        # 必填，如 31917999
+  entity_type: "stories"                  # 需求类型，通常不修改
+  default_iteration: "<你的默认迭代>"      # 如 tryon-v0.1.0-mvp
+  default_priority: "高"                  # 高/中/低
+  initial_status: "待AI分析"              # 初始状态
+
+  # TAPD 状态流转（通常不修改名称）
+  status_flow:
+    start: "待AI分析"
+    spec: "AI生成Spec中"
+    develop: "AI开发中"
+    test: "AI测试中"
+    review: "AI审核中"
+    fix: "AI自动修复中"                    # 可选
+    ready_merge: "待自动合并"
+    merged: "已合并"
+    done: "已完成"
+
+# ── Git / CNB 配置 ──
+git:
+  target_branch: "<目标分支>"              # 如 main / master
+  biz_prefix: "<业务前缀>"                 # 如 tryon / order / chatbot
+  version_prefix: "v"                     # 版本前缀
+
+  # 分支命名模板
+  branch_template: "feature/{biz_prefix}-{version_prefix}{version}_{feature_desc}"
+
+  # 提交信息模板
+  commit_scopes:
+    feat: "feat({biz_prefix})"
+    test: "test({biz_prefix})"
+    fix: "fix({biz_prefix})"
+    docs: "docs(spec)"
+    ci: "ci(tapd)"
+    review: "test(review)"
+
+# ── 代码仓库 ──
+repository:
+  main_repo: "<org>/<repo-name>"           # 主仓库
+  secrets_repo: "<org>/<repo-name>-secrets" # 密钥仓库
+
+# ── CodeBuddy 配置 ──
+codebuddy:
+  rules_dir: ".codebuddy/rules"
+  knowledge_dir: ".codebuddy/knowledge"
+  commands_dir: ".codebuddy/commands"
+  main_command: "newdev"
+
+  # 触发热词
+  triggers:
+    existing_story:
+      - "开发需求 {id}"
+      - "跑需求 {id}"
+      - "启动需求 {id}"
+      - "TAPD-{id}"
+      - "需求ID：{id}"
+      - "开发下一个需求"
+    new_story:
+      - "/newdev {topic}"
+      - "/newdev --yes {topic}"
+      - "创建并开发需求：{topic}"
+
+# ── CNB 流水线配置 ──
+cnb:
+  docker_image: "<Docker镜像>"             # 如 python:3.11-slim
+  secrets_import: "https://cnb.cool/<org>/<secrets-repo>/-/blob/main/tapd-env.yml"
+
+# ── 质量门禁 ──
+quality_gate:
+  coverage_threshold: 90                   # 百分比
+  ai_review_threshold: 95                  # 分数
+  critical_pause: true                     # Critical 问题暂停
+
+  # 测试命令（按语言调整）
+  test_command: "pytest --cov=src --cov-report=term-missing --cov-report=xml"
+  coverage_script: "python scripts/check_coverage.py"
+
+# ── 自动合并 ──
+auto_merge:
+  enabled: true
+  conditions:
+    - "pytest 全部通过"
+    - "覆盖率 >= {coverage_threshold}%"
+    - "AI Review >= {ai_review_threshold}"
+    - "无 Critical 问题"
+    - "MR 无冲突"
+    - "TAPD 归档 JSON 已生成"
+    - "目标分支为 {target_branch}"
+
+# ── TAPD 归档 ──
+tapd_archive:
+  enabled: true
+  archive_script: "scripts/tapd_archive.py"
+  archive_json_pattern: "reports/tapd-*-archive.json"
+  comment_template: "AI研发自动化闭环归档报告"
+
+# ── 项目元信息 ──
+project:
+  name: "<项目名称>"
+  description: "<项目描述>"
+  docs_dir: "docs"
+  specs_dir: "specs"
+  reports_dir: "reports"
+  static_dir: "static"
