@@ -3,6 +3,15 @@
 #
 # 新业务项目请使用 templates/cnb-pipeline-template.yml
 
+api_trigger:
+  stages:
+    - name: Validate template files (api)
+      image: python:3.11-slim
+      script: |
+        set -e
+        echo "=== 模板仓库 API 自检 ==="
+        python scripts/validate_template.py
+
 pull_request:
   branches:
     - main
