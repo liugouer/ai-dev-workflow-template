@@ -1,5 +1,5 @@
 ---
-description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档。配套规则：ExperienceLayeringRules.mdc（经验分层沉淀）、WorkflowCompletionRules.mdc（闭环完成判定）、HumanInterventionRules.mdc（人工介入断点）
+description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档。配套规则：ExperienceLayeringRules.mdc（经验分层沉淀）、WorkflowCompletionRules.mdc（闭环完成判定）、HumanInterventionRules.mdc（人工介入断点）、EpicRequirementDecompositionRules.mdc（大功能拆解）
 globs:
 alwaysApply: true
 -----------------
@@ -10,13 +10,16 @@ alwaysApply: true
 
 本规则用于驱动 CodeBuddy 自动完成「{BUSINESS_NAME}」的 AI 研发闭环。
 
-CodeBuddy 必须支持两种模式：
+CodeBuddy 必须支持三种模式：
 
 1. 已有 TAPD 需求开发模式
    用户输入需求 ID 后，CodeBuddy 自动读取 TAPD 需求并完成研发闭环。
 
-2. TAPD 需求创建并开发模式
+2. TAPD 需求创建并开发模式（`/newdev`）
    用户输入需求主题后，CodeBuddy 自动生成 TAPD 需求、创建 TAPD 需求，并立即启动研发闭环。
+
+3. 大功能拆解并批量开发模式（`/epicdev`）
+   用户输入大功能描述后，CodeBuddy 先依据 `EpicRequirementDecompositionRules.mdc` 拆解为最小需求单元，再顺序执行每个需求的研发闭环。
 
 最终目标不是只创建 MR，而是：
 
@@ -75,7 +78,7 @@ TAPD 需求创建或读取
 8. 开发下一个待AI分析需求
 9. 用户粘贴 TAPD 需求链接
 
-### 3.2 创建 TAPD 需求并自动开发
+### 3.2 创建 TAPD 需求并自动开发（`/newdev`）
 
 以下输入都必须识别为「创建 TAPD 需求并启动自动研发闭环」：
 
@@ -86,6 +89,19 @@ TAPD 需求创建或读取
 5. 新建需求并开发：xxx
 6. 自动创建并开发需求：xxx
 7. 无需确认，创建并开发需求：xxx
+
+### 3.3 大功能拆解并批量开发（`/epicdev`）
+
+以下输入都必须识别为「大功能拆解并批量开发」：
+
+1. /epicdev xxx
+2. /epicdev --plan xxx
+3. /epicdev --yes xxx
+4. 我要一个 xxx
+5. 帮我做一个 xxx
+6. 把 xxx 拆成需求并自动开发
+
+当用户输入大功能目标时，CodeBuddy 必须先进入 `EpicRequirementDecompositionRules.mdc`，将大功能拆解为最小需求单元后，再逐个进入 `/newdev` 闭环。
 
 ---
 
@@ -216,7 +232,7 @@ update_story_or_task
 ### 7.1 准备阶段
 
 1. 读取 `.codebuddy/knowledge` 下的项目知识库。
-2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc`、`WorkflowCompletionRules.mdc` 和 `HumanInterventionRules.mdc`）。
+2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc`、`WorkflowCompletionRules.mdc`、`HumanInterventionRules.mdc` 和 `EpicRequirementDecompositionRules.mdc`）。
 3. 读取 TAPD 需求完整内容。
 4. 确认当前本地代码已同步 main。
 5. 确认工作区没有未处理的无关改动。

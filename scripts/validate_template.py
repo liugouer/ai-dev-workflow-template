@@ -23,10 +23,12 @@ def check_required_files() -> list[str]:
         "workflow.config.example.yml",
         "templates/autonomous-workflow-rules-template.mdc",
         "templates/newdev-command-template.md",
+        "templates/epicdev-command-template.md",
         "templates/tapd-requirement-template.md",
         "templates/cnb-pipeline-template.yml",
         "docs/workflow-template/REUSE_CHECKLIST.md",
         ".codebuddy/commands/newdev.md",
+        ".codebuddy/commands/epicdev.md",
     ]
 
     for path in required:
@@ -55,6 +57,7 @@ def check_rules_dir() -> list[str]:
         "CodingStandardRules.mdc",
         "DesignSpecRules.mdc",
         "EffectFeedbackLoopRules.mdc",
+        "EpicRequirementDecompositionRules.mdc",
         "ExecutionGuardRules.mdc",
         "ExperienceLayeringRules.mdc",
         "GitBranchRules.mdc",
@@ -94,6 +97,7 @@ def check_templates_rules_dir() -> list[str]:
         "ExperienceLayeringRules.mdc",
         "WorkflowCompletionRules.mdc",
         "HumanInterventionRules.mdc",
+        "EpicRequirementDecompositionRules.mdc",
     ]
 
     for f in expected:

@@ -18,6 +18,7 @@
 | 10 | `.codebuddy/rules/ExperienceLayeringRules.mdc` | 经验分层沉淀，通用 | ☐ |
 | 11 | `.codebuddy/rules/WorkflowCompletionRules.mdc` | 闭环完成判定，通用 | ☐ |
 | 12 | `.codebuddy/rules/HumanInterventionRules.mdc` | 人工介入断点，通用 | ☐ |
+| 13 | `.codebuddy/rules/EpicRequirementDecompositionRules.mdc` | 大功能拆解，通用 | ☐ |
 
 ## ⚠️ 需要修改后使用
 
@@ -27,9 +28,10 @@
 | 2 | `.codebuddy/rules/CodingStandardRules.mdc` | 接口路径、响应格式、需求边界 | ☐ |
 | 3 | `.codebuddy/rules/GitBranchRules.mdc` | biz_prefix、版本号 | ☐ |
 | 4 | `.codebuddy/commands/newdev.md` | TAPD 项目ID、迭代名 | ☐ |
-| 5 | `.cnb.yml` | Docker 镜像、密钥仓库 URL | ☐ |
-| 6 | `requirements.txt` | 新项目依赖列表 | ☐ |
-| 7 | `README.md` | 新项目介绍 | ☐ |
+| 5 | `.codebuddy/commands/epicdev.md` | TAPD 项目ID、迭代名 | ☐ |
+| 6 | `.cnb.yml` | Docker 镜像、密钥仓库 URL | ☐ |
+| 7 | `requirements.txt` | 新项目依赖列表 | ☐ |
+| 8 | `README.md` | 新项目介绍 | ☐ |
 
 ## 🔄 必须完全重写
 

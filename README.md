@@ -9,9 +9,9 @@
 ## 自动研发闭环流程
 
 ```
-TAPD 需求 / 自动创建需求
+TAPD 需求 / 自动创建需求 / 大功能拆解
     → CodeBuddy 读取知识库与规则
-    → 判断最小需求单元
+    → 判断最小需求单元（或拆解大功能）
     → AI生成Spec中（TAPD 状态同步）
     → 生成 Spec 设计文档
     → AI开发中（TAPD 状态同步）
@@ -46,6 +46,7 @@ TAPD 需求 / 自动创建需求
 | 经验分层沉淀规则 | 业务经验/通用经验/混合经验分层沉淀 |
 | 闭环完成判定规则 | PR 流水线 + Push 流水线全部通过才算完成 |
 | 人工介入断点规则 | 暂停条件、密钥处理、恢复执行规则 |
+| 大功能拆解规则 | 拆解为最小需求单元、批量创建、顺序执行 |
 
 ### ⚠️ 必须替换
 
@@ -94,6 +95,7 @@ ai-dev-workflow-template/
 │   │   ├── CodingStandardRules.mdc      #   代码规范（按需替换）
 │   │   ├── DesignSpecRules.mdc          #   Spec 规范
 │   │   ├── EffectFeedbackLoopRules.mdc  #   效果反馈修复闭环规则
+│   │   ├── EpicRequirementDecompositionRules.mdc #   大功能拆解为最小需求单元
 │   │   ├── ExecutionGuardRules.mdc      #   执行护栏规则（强制预检+流水线检查）
 │   │   ├── ExperienceLayeringRules.mdc  #   经验分层沉淀规则
 │   │   ├── GitBranchRules.mdc           #   分支规范（替换 biz_prefix）
@@ -113,6 +115,7 @@ ai-dev-workflow-template/
 ├── templates/                           # 独立模板文件
 │   ├── tapd-requirement-template.md
 │   ├── newdev-command-template.md
+│   ├── epicdev-command-template.md
 │   ├── autonomous-workflow-rules-template.mdc
 │   ├── cnb-pipeline-template.yml        # CNB 流水线模板（新业务项目复制此文件）
 │   ├── rules/                           # 通用规则模板（新项目复制到 .codebuddy/rules/）
@@ -120,7 +123,8 @@ ai-dev-workflow-template/
 │   │   ├── EffectFeedbackLoopRules.mdc
 │   │   ├── ExperienceLayeringRules.mdc
 │   │   ├── WorkflowCompletionRules.mdc
-│   │   └── HumanInterventionRules.mdc
+│   │   ├── HumanInterventionRules.mdc
+│   │   └── EpicRequirementDecompositionRules.mdc
 │   └── knowledge-files/
 └── reports/                             # 归档报告（.gitignore 忽略）
 ```
@@ -138,6 +142,7 @@ ai-dev-workflow-template/
 | AI Code Review | ✅ |
 | CNB 流水线框架 | ✅ |
 | `/newdev` 命令 | ✅ |
+| `/epicdev` 命令 | ✅ |
 | TAPD 归档脚本 | ✅ (Python 脚本可独立运行) |
 | 覆盖率门禁 | 需替换为对应语言的覆盖率工具 |
 | 测试命令 | 需替换为对应语言的测试框架 |

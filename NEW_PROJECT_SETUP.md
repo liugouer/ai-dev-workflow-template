@@ -51,6 +51,7 @@ cp -r ../ai-dev-workflow-template/.codebuddy/knowledge-template/ .codebuddy/know
 > | `ExperienceLayeringRules.mdc` | 经验分层沉淀：区分业务/通用/混合经验、沉淀位置映射、禁止沉淀规则 |
 > | `WorkflowCompletionRules.mdc` | 闭环完成判定：PR + Push 流水线全部通过、TAPD 归档成功才完成 |
 | `HumanInterventionRules.mdc` | 人工介入断点：暂停条件、密钥处理、恢复执行规则 |
+| `EpicRequirementDecompositionRules.mdc` | 大功能拆解：拆解为最小需求单元、批量创建、顺序执行 |
 
 ## 步骤 3：配置 TAPD 项目 ID
 
@@ -67,6 +68,7 @@ https://www.tapd.cn/<workspace_id>/...
 | `.codebuddy/rules/AutonomousWorkflowRules.mdc` | `TAPD 项目 ID：{TAPD_WORKSPACE_ID}` |
 | `workflow.config.example.yml` | `workspace_id: "<你的TAPD项目ID>"` |
 | `.codebuddy/commands/newdev.md` | 默认参数区域 |
+| `.codebuddy/commands/epicdev.md` | 默认参数区域 |
 
 ## 步骤 4：配置 TAPD 迭代
 
@@ -190,6 +192,20 @@ imports:
 - ✅ AI Review ≥ 95
 - ✅ MR 自动合并
 - ✅ TAPD 归档完成
+
+## 步骤 12：两种研发模式
+
+新项目初始化后支持两种研发模式：
+
+1. **`/newdev`**：单个最小需求单元研发闭环
+   - 输入需求主题或已存在的 TAPD 需求 ID
+   - 自动创建需求（如需）→ Spec → 开发 → 测试 → Review → MR → 合并 → 归档
+
+2. **`/epicdev`**：大功能拆解为多个最小需求单元并顺序执行
+   - 输入大功能描述
+   - 自动拆解为最小需求单元
+   - 逐个创建 TAPD 需求并顺序执行完整闭环
+   - 详情见 `.codebuddy/rules/EpicRequirementDecompositionRules.mdc`
 
 ## 验收自检
 

@@ -24,6 +24,7 @@ pull_request:
           workflow.config.example.yml
           templates/autonomous-workflow-rules-template.mdc
           templates/newdev-command-template.md
+          templates/epicdev-command-template.md
           templates/tapd-requirement-template.md
           templates/cnb-pipeline-template.yml
           templates/rules/ExecutionGuardRules.mdc
@@ -31,9 +32,11 @@ pull_request:
           templates/rules/ExperienceLayeringRules.mdc
           templates/rules/WorkflowCompletionRules.mdc
           templates/rules/HumanInterventionRules.mdc
+          templates/rules/EpicRequirementDecompositionRules.mdc
           docs/workflow-template/REUSE_CHECKLIST.md
           scripts/validate_template.py
           .codebuddy/commands/newdev.md
+          .codebuddy/commands/epicdev.md
         "
 
         for f in $required_files; do
@@ -157,6 +160,7 @@ push:
           workflow.config.example.yml
           templates/autonomous-workflow-rules-template.mdc
           templates/newdev-command-template.md
+          templates/epicdev-command-template.md
           templates/tapd-requirement-template.md
           templates/cnb-pipeline-template.yml
           templates/rules/ExecutionGuardRules.mdc
@@ -164,9 +168,11 @@ push:
           templates/rules/ExperienceLayeringRules.mdc
           templates/rules/WorkflowCompletionRules.mdc
           templates/rules/HumanInterventionRules.mdc
+          templates/rules/EpicRequirementDecompositionRules.mdc
           docs/workflow-template/REUSE_CHECKLIST.md
           scripts/validate_template.py
           .codebuddy/commands/newdev.md
+          .codebuddy/commands/epicdev.md
         "
 
         for f in $required_files; do
