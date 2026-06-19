@@ -41,6 +41,10 @@ TAPD 需求 / 自动创建需求
 | AI Review 规范 | 代码审查标准 |
 | 质量门禁规范 | 覆盖率>=90%、AI Review>=95 |
 | CNB 流水线结构 | pull_request 质量门禁 + push 归档（模板见 templates/cnb-pipeline-template.yml） |
+| 执行护栏规则 | 强制预检 + 分支保护 + 本地验证 + 推送 + MR + 闭环报告 |
+| 效果反馈修复闭环 | 问题复现 → 修复 → 验证 → 推送 → CNB 检查 |
+| 经验分层沉淀规则 | 业务经验/通用经验/混合经验分层沉淀 |
+| 闭环完成判定规则 | PR 流水线 + Push 流水线全部通过才算完成 |
 
 ### ⚠️ 必须替换
 
@@ -88,9 +92,13 @@ ai-dev-workflow-template/
 │   │   ├── AutonomousWorkflowRules.mdc  #   总控规则（必须替换参数）
 │   │   ├── CodingStandardRules.mdc      #   代码规范（按需替换）
 │   │   ├── DesignSpecRules.mdc          #   Spec 规范
+│   │   ├── EffectFeedbackLoopRules.mdc  #   效果反馈修复闭环规则
+│   │   ├── ExecutionGuardRules.mdc      #   执行护栏规则（强制预检+流水线检查）
+│   │   ├── ExperienceLayeringRules.mdc  #   经验分层沉淀规则
 │   │   ├── GitBranchRules.mdc           #   分支规范（替换 biz_prefix）
 │   │   ├── SecurityRules.mdc            #   安全规范
 │   │   ├── UnitTestRules.mdc            #   测试规范
+│   │   ├── WorkflowCompletionRules.mdc  #   闭环完成判定规则
 │   │   └── WorkflowRules.mdc            #   流程规范
 │   └── knowledge-template/              # 知识库模板（新项目必须重写）
 │       ├── 01_项目概述.md
@@ -105,6 +113,11 @@ ai-dev-workflow-template/
 │   ├── newdev-command-template.md
 │   ├── autonomous-workflow-rules-template.mdc
 │   ├── cnb-pipeline-template.yml        # CNB 流水线模板（新业务项目复制此文件）
+│   ├── rules/                           # 通用规则模板（新项目复制到 .codebuddy/rules/）
+│   │   ├── ExecutionGuardRules.mdc
+│   │   ├── EffectFeedbackLoopRules.mdc
+│   │   ├── ExperienceLayeringRules.mdc
+│   │   └── WorkflowCompletionRules.mdc
 │   └── knowledge-files/
 └── reports/                             # 归档报告（.gitignore 忽略）
 ```

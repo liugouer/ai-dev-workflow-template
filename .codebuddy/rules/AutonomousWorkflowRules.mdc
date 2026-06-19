@@ -1,5 +1,5 @@
 ---
-description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档
+description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档。配套规则：ExperienceLayeringRules.mdc（经验分层沉淀）、WorkflowCompletionRules.mdc（闭环完成判定）
 globs:
 alwaysApply: true
 -----------------
@@ -35,6 +35,7 @@ TAPD 需求创建或读取
 → 状态检查通过后自动合并 MR
 → 合并后确认 CNB main push 流水线通过
 → 确认 TAPD 状态已归档为「已完成」
+→ 执行经验分层沉淀检查
 
 用户不再逐步提供 Spec 提示词、开发提示词、测试提示词、Review 提示词。CodeBuddy 必须根据项目知识库、Rules、TAPD 需求和当前代码自行生成阶段任务并执行。
 
@@ -215,7 +216,7 @@ update_story_or_task
 ### 7.1 准备阶段
 
 1. 读取 `.codebuddy/knowledge` 下的项目知识库。
-2. 读取 `.codebuddy/rules` 下的全部规则。
+2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc` 和 `WorkflowCompletionRules.mdc`）。
 3. 读取 TAPD 需求完整内容。
 4. 确认当前本地代码已同步 main。
 5. 确认工作区没有未处理的无关改动。
@@ -347,6 +348,32 @@ reports/tapd-{短需求ID}-archive.json
 
 ci(tapd): add TAPD-{短需求ID} archive config
 
+### 7.8 经验分层沉淀阶段
+
+每轮闭环完成前（在生成归档 JSON 之后、输出最终报告之前），CodeBuddy 必须执行"经验分层沉淀检查"，依据 `.codebuddy/rules/ExperienceLayeringRules.mdc` 进行。
+
+检查步骤：
+
+1. 判断本轮是否产生业务经验 → 如果是，更新对应的 `.codebuddy/knowledge/` 文件
+2. 判断本轮是否产生通用经验 → 如果是，记录同步建议（不执行跨仓库同步）
+3. 判断是否存在混合经验 → 如果是，先拆分再分别处理
+4. 检查是否存在禁止沉淀的敏感信息 → 如果有，从沉淀内容中移除
+5. 将经验沉淀结果写入最终报告的经验沉淀段落
+
+### 7.9 闭环完成判定阶段
+
+CodeBuddy 必须依据 `.codebuddy/rules/WorkflowCompletionRules.mdc` 判定闭环是否真正"已完成"。
+
+判定条件（全部必须满足）：
+
+1. PR 流水线（pull_request 触发）必须通过
+2. MR 自动合并必须成功
+3. main push 流水线（push 触发）必须通过
+4. TAPD 归档必须成功（状态更新为「已完成」）
+5. 经验分层沉淀检查已完成
+
+只有上述条件全部满足，才允许将闭环状态判定为「已完成」。
+
 ---
 
 ## 8. TAPD 状态强制同步规则
@@ -404,6 +431,13 @@ TAPD 状态同步是自动研发闭环的强制步骤，不允许静默跳过。
    已完成
 
 10. CodeBuddy 必须在最终阶段检查 TAPD 是否已经变为「已完成」。
+
+11. **已完成状态必须满足两条流水线全部通过**（强制执行，依据 `WorkflowCompletionRules.mdc`）：
+    - MR 合并前：PR 流水线（pull_request 触发）必须通过（pytest 全部通过 + 覆盖率 >= 90%）
+    - MR 合并后：Push 流水线（push 触发）必须通过（pytest 全部通过 + 覆盖率 >= 90% + TAPD 归档成功）
+    - 两条流水线都通过后，TAPD 状态才能更新为「已完成」
+    - 如果 Push 流水线 pytest/coverage 失败（即使 PR 流水线已通过），不得将状态更新为已完成，必须分析失败原因并修复
+    - 如果 Push 流水线归档阶段失败，TAPD 状态保持「已合并」，不得假装更新为已完成
 
 ### 8.2 状态更新失败处理规则
 
@@ -518,6 +552,8 @@ CodeBuddy 在任何情况下都不得执行以下行为：
 12. 涉及真实密钥、支付、登录、安全敏感改动。
 13. 涉及真实 AI 模型调用但没有明确配置和授权。
 14. 自动合并前置条件不满足。
+15. main push 流水线失败且自动修复无效。
+16. TAPD 归档失败且无法自动重试成功。
 
 ---
 
@@ -545,6 +581,9 @@ CodeBuddy 在任何情况下都不得执行以下行为：
 18. CNB main push 流水线是否通过
 19. TAPD 是否已更新为「已完成」
 20. 如果失败，失败阶段、失败原因和建议处理方式
+21. 本轮是否产生业务经验 / 业务经验沉淀位置
+22. 本轮是否产生通用经验 / 是否需要同步模板仓库
+23. 禁止沉淀检查结果
 
 ---
 
@@ -582,10 +621,16 @@ TAPD 需求：
 
 MR 与流水线：
 - MR：
+- CNB PR 流水线：
 - CNB MR 状态检查：
 - 是否自动合并：
 - CNB main push 流水线：
 - TAPD 归档：
+
+经验沉淀：
+- 业务经验：是否产生 / 已更新文件
+- 通用经验：是否产生 / 同步建议
+- 禁止沉淀确认：是否通过
 
 结论：
 - 成功 / 失败

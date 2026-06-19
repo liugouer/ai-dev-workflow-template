@@ -29,15 +29,27 @@ cp ../ai-dev-workflow-template/workflow.config.example.yml ./
 cp ../ai-dev-workflow-template/.gitignore ./
 
 # 复制脚本
-cp -r ../ai-dev-workflow-template/scripts/ ./
+cp -r ../ai-dev-workflow-template/scripts/ ./scripts/
 
 # 复制 CodeBuddy 规则模板
 mkdir -p .codebuddy/rules
 cp ../ai-dev-workflow-template/.codebuddy/rules/*.mdc .codebuddy/rules/
 
+# 复制通用规则模板（执行护栏、效果修复、经验沉淀、完成判定）
+cp ../ai-dev-workflow-template/templates/rules/*.mdc .codebuddy/rules/
+
 # 复制知识库模板
 cp -r ../ai-dev-workflow-template/.codebuddy/knowledge-template/ .codebuddy/knowledge/
 ```
+
+> **重要：** 新业务项目初始化后必须具备以下规则文件：
+>
+> | 规则文件 | 职责 |
+> |----------|------|
+> | `ExecutionGuardRules.mdc` | 执行护栏：每次操作强制预检、分支保护、本地验证、推送、MR 检查与闭环报告 |
+> | `EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环：问题复现、修复、验证、知识库同步、CNB 检查 |
+> | `ExperienceLayeringRules.mdc` | 经验分层沉淀：区分业务/通用/混合经验、沉淀位置映射、禁止沉淀规则 |
+> | `WorkflowCompletionRules.mdc` | 闭环完成判定：PR + Push 流水线全部通过、TAPD 归档成功才完成 |
 
 ## 步骤 3：配置 TAPD 项目 ID
 

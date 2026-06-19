@@ -13,6 +13,10 @@
 | 5 | `.codebuddy/rules/UnitTestRules.mdc` | 测试规范，通用 | ☐ |
 | 6 | `.codebuddy/rules/WorkflowRules.mdc` | 流程规范，通用 | ☐ |
 | 7 | `.codebuddy/rules/DesignSpecRules.mdc` | Spec 规范，通用 | ☐ |
+| 8 | `.codebuddy/rules/ExecutionGuardRules.mdc` | 执行护栏规则，通用 | ☐ |
+| 9 | `.codebuddy/rules/EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环，通用 | ☐ |
+| 10 | `.codebuddy/rules/ExperienceLayeringRules.mdc` | 经验分层沉淀，通用 | ☐ |
+| 11 | `.codebuddy/rules/WorkflowCompletionRules.mdc` | 闭环完成判定，通用 | ☐ |
 
 ## ⚠️ 需要修改后使用
 
@@ -70,13 +74,15 @@
 | 1 | `/newdev 冒烟测试需求` | TAPD 需求自动创建 | ☐ |
 | 2 | Spec 自动生成 | specs/ 下生成 Spec 文件 | ☐ |
 | 3 | 分支自动创建 | feature/ 分支创建成功 | ☐ |
-| 4 | 代码自动实现 | 代码完成功能 | ☐ |
-| 5 | pytest 全部通过 | 0 failed | ☐ |
-| 6 | 覆盖率 >= 90% | 门禁通过 | ☐ |
-| 7 | AI Review >= 95 | 无 Critical | ☐ |
-| 8 | MR 自动创建 | CNB 上有 MR | ☐ |
-| 9 | MR 自动合并 | 合并到 main | ☐ |
-| 10 | TAPD 归档完成 | 状态变为「已完成」 | ☐ |
+| 4 | 执行护栏预检通过 | 规则、知识库、分支、git status 预检 | ☐ |
+| 5 | 代码自动实现 | 代码完成功能 | ☐ |
+| 6 | pytest 全部通过 | 0 failed | ☐ |
+| 7 | 覆盖率 >= 90% | 门禁通过 | ☐ |
+| 8 | AI Review >= 95 | 无 Critical | ☐ |
+| 9 | MR 自动创建 | CNB 上有 MR | ☐ |
+| 10 | MR 自动合并 | 合并到 main | ☐ |
+| 11 | TAPD 归档完成 | 状态变为「已完成」 | ☐ |
+| 12 | 闭环报告输出 | 包含经验沉淀段落 | ☐ |
 
 ## 快速参考：爱穿搭→新项目映射表
 

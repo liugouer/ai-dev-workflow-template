@@ -26,7 +26,12 @@ pull_request:
           templates/newdev-command-template.md
           templates/tapd-requirement-template.md
           templates/cnb-pipeline-template.yml
+          templates/rules/ExecutionGuardRules.mdc
+          templates/rules/EffectFeedbackLoopRules.mdc
+          templates/rules/ExperienceLayeringRules.mdc
+          templates/rules/WorkflowCompletionRules.mdc
           docs/workflow-template/REUSE_CHECKLIST.md
+          scripts/validate_template.py
         "
 
         for f in $required_files; do
@@ -152,7 +157,12 @@ push:
           templates/newdev-command-template.md
           templates/tapd-requirement-template.md
           templates/cnb-pipeline-template.yml
+          templates/rules/ExecutionGuardRules.mdc
+          templates/rules/EffectFeedbackLoopRules.mdc
+          templates/rules/ExperienceLayeringRules.mdc
+          templates/rules/WorkflowCompletionRules.mdc
           docs/workflow-template/REUSE_CHECKLIST.md
+          scripts/validate_template.py
         "
 
         for f in $required_files; do
