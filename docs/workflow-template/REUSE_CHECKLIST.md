@@ -19,6 +19,7 @@
 | 11 | `.codebuddy/rules/WorkflowCompletionRules.mdc` | 闭环完成判定，通用 | ☐ |
 | 12 | `.codebuddy/rules/HumanInterventionRules.mdc` | 人工介入断点，通用 | ☐ |
 | 13 | `.codebuddy/rules/EpicRequirementDecompositionRules.mdc` | 大功能拆解，通用 | ☐ |
+| 14 | `.codebuddy/rules/IterationLifecycleRules.mdc` | 迭代生命周期，通用 | ☐ |
 
 ## ⚠️ 需要修改后使用
 
@@ -29,9 +30,11 @@
 | 3 | `.codebuddy/rules/GitBranchRules.mdc` | biz_prefix、版本号 | ☐ |
 | 4 | `.codebuddy/commands/newdev.md` | TAPD 项目ID、迭代名 | ☐ |
 | 5 | `.codebuddy/commands/epicdev.md` | TAPD 项目ID、迭代名 | ☐ |
-| 6 | `.cnb.yml` | Docker 镜像、密钥仓库 URL | ☐ |
-| 7 | `requirements.txt` | 新项目依赖列表 | ☐ |
-| 8 | `README.md` | 新项目介绍 | ☐ |
+| 6 | `.codebuddy/commands/iteration.md` | TAPD 项目ID、迭代名 | ☐ |
+| 7 | `.codebuddy/commands/dailymaintain.md` | TAPD 项目ID、迭代名 | ☐ |
+| 8 | `.cnb.yml` | Docker 镜像、密钥仓库 URL | ☐ |
+| 9 | `requirements.txt` | 新项目依赖列表 | ☐ |
+| 10 | `README.md` | 新项目介绍 | ☐ |
 
 ## 🔄 必须完全重写
 

@@ -1,5 +1,5 @@
 ---
-description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档。配套规则：ExperienceLayeringRules.mdc（经验分层沉淀）、WorkflowCompletionRules.mdc（闭环完成判定）、HumanInterventionRules.mdc（人工介入断点）、EpicRequirementDecompositionRules.mdc（大功能拆解）
+description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档。配套规则：ExperienceLayeringRules.mdc（经验分层沉淀）、WorkflowCompletionRules.mdc（闭环完成判定）、HumanInterventionRules.mdc（人工介入断点）、EpicRequirementDecompositionRules.mdc（大功能拆解）、IterationLifecycleRules.mdc（迭代生命周期）
 globs:
 alwaysApply: true
 -----------------
@@ -10,7 +10,7 @@ alwaysApply: true
 
 本规则用于驱动 CodeBuddy 自动完成「{BUSINESS_NAME}」的 AI 研发闭环。
 
-CodeBuddy 必须支持三种模式：
+CodeBuddy 必须支持四种模式：
 
 1. 已有 TAPD 需求开发模式
    用户输入需求 ID 后，CodeBuddy 自动读取 TAPD 需求并完成研发闭环。
@@ -20,6 +20,9 @@ CodeBuddy 必须支持三种模式：
 
 3. 大功能拆解并批量开发模式（`/epicdev`）
    用户输入大功能描述后，CodeBuddy 先依据 `EpicRequirementDecompositionRules.mdc` 拆解为最小需求单元，再顺序执行每个需求的研发闭环。
+
+4. 迭代生命周期循环模式（`/iteration` + `/dailymaintain`）
+   项目研发必须按迭代循环推进。单个最小需求使用 `/newdev`。大功能拆解使用 `/epicdev`。每日维护使用 `/dailymaintain`。迭代启动、状态检查和版本收口使用 `/iteration`。所有迭代操作必须依据 `IterationLifecycleRules.mdc`。
 
 最终目标不是只创建 MR，而是：
 
@@ -102,6 +105,31 @@ TAPD 需求创建或读取
 6. 把 xxx 拆成需求并自动开发
 
 当用户输入大功能目标时，CodeBuddy 必须先进入 `EpicRequirementDecompositionRules.mdc`，将大功能拆解为最小需求单元后，再逐个进入 `/newdev` 闭环。
+
+### 3.4 迭代生命周期管理（`/iteration`）
+
+以下输入都必须识别为「迭代生命周期管理」：
+
+1. /iteration --start {version}
+2. /iteration --status [version]
+3. /iteration --release {version}
+4. 启动 {version} 迭代
+5. 查询迭代状态
+6. 收口 {version} 迭代
+
+当用户输入迭代操作时，CodeBuddy 必须进入 `IterationLifecycleRules.mdc`。
+
+### 3.5 每日维护（`/dailymaintain`）
+
+以下输入都必须识别为「每日维护」：
+
+1. /dailymaintain
+2. 执行今日维护
+3. 检查今日研发闭环状态
+4. 每日检查
+5. 今天有什么需要处理的
+
+当用户输入每日维护时，CodeBuddy 必须进入 `IterationLifecycleRules.mdc` §5。
 
 ---
 
@@ -232,7 +260,7 @@ update_story_or_task
 ### 7.1 准备阶段
 
 1. 读取 `.codebuddy/knowledge` 下的项目知识库。
-2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc`、`WorkflowCompletionRules.mdc`、`HumanInterventionRules.mdc` 和 `EpicRequirementDecompositionRules.mdc`）。
+2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc`、`WorkflowCompletionRules.mdc`、`HumanInterventionRules.mdc`、`EpicRequirementDecompositionRules.mdc` 和 `IterationLifecycleRules.mdc`）。
 3. 读取 TAPD 需求完整内容。
 4. 确认当前本地代码已同步 main。
 5. 确认工作区没有未处理的无关改动。
