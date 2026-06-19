@@ -77,7 +77,7 @@
 8. Commit & Push
 9. 创建 MR
 10. CNB 检查
-11. 自动合并
+11. 自动合并（如 PR 流水线通过但未自动合并，进入 `AutoMergeFallbackRules.mdc` 兜底）
 12. TAPD 归档
 
 **每个需求必须走完完整闭环后才能进入下一个需求。**
@@ -104,7 +104,8 @@ python scripts/validate_template.py
 4. `EffectFeedbackLoopRules.mdc` — 效果反馈修复闭环
 5. `ExperienceLayeringRules.mdc` — 经验分层沉淀
 6. `WorkflowCompletionRules.mdc` — 闭环完成判定
-7. `HumanInterventionRules.mdc` — 人工介入断点
+7. `AutoMergeFallbackRules.mdc` — 自动合并兜底规则
+8. `HumanInterventionRules.mdc` — 人工介入断点
 
 ## 人工介入
 

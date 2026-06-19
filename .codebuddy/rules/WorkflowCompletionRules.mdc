@@ -25,6 +25,7 @@ alwaysApply: true
 2. **MR 自动合并必须成功**
    - MR 状态为 merged
    - 合并到 main 分支
+   - 如果 PR 流水线通过但 MR 未自动合并，必须依据 `AutoMergeFallbackRules.mdc` 执行兜底合并
 
 3. **main push 流水线（push 触发）必须通过**
    - pytest 全部通过
@@ -87,7 +88,7 @@ TAPD 状态「已完成」必须满足两条流水线全部通过（强制执行
 
 以下情况**不得**判定闭环为已完成：
 
-- PR 流水线通过但 MR 未合并
+- PR 流水线通过但 MR 未合并（应先进入 `AutoMergeFallbackRules.mdc` 兜底检查）
 - MR 已合并但 push 流水线未触发
 - MR 已合并但 push 流水线失败
 - 两条流水线都通过但 TAPD 归档失败

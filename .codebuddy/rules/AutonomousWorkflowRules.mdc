@@ -260,7 +260,7 @@ update_story_or_task
 ### 7.1 准备阶段
 
 1. 读取 `.codebuddy/knowledge` 下的项目知识库。
-2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc`、`WorkflowCompletionRules.mdc`、`HumanInterventionRules.mdc`、`EpicRequirementDecompositionRules.mdc` 和 `IterationLifecycleRules.mdc`）。
+2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc`、`WorkflowCompletionRules.mdc`、`HumanInterventionRules.mdc`、`AutoMergeFallbackRules.mdc`、`EpicRequirementDecompositionRules.mdc` 和 `IterationLifecycleRules.mdc`）。
 3. 读取 TAPD 需求完整内容。
 4. 确认当前本地代码已同步 main。
 5. 确认工作区没有未处理的无关改动。
@@ -548,6 +548,8 @@ MR 描述必须包含：
 
 **如果 MR 已创建但尚未合并（state = "open"），且满足上述所有条件，CodeBuddy 必须主动调用 `cnb_merge_pull` 完成自动合并。**
 
+**如果 PR 流水线已通过，但 MR 未自动合并（state 仍为 "open"），CodeBuddy 必须进入 `AutoMergeFallbackRules.mdc`，逐项检查合并条件并执行兜底合并。**
+
 不满足任一条件时，禁止自动合并，必须输出失败原因并等待人工处理。
 
 ### 9.2 自动合并后检查
@@ -601,9 +603,10 @@ CodeBuddy 在任何情况下都不得执行以下行为：
 11. 涉及删除大量文件。
 12. 涉及真实密钥、支付、登录、安全敏感改动。
 13. 涉及真实 AI 模型调用但没有明确配置和授权。
-14. 自动合并前置条件不满足。
-15. main push 流水线失败且自动修复无效。
-16. TAPD 归档失败且无法自动重试成功。
+14. 自动合并前置条件不满足（进入 `AutoMergeFallbackRules.mdc` 检查）。
+15. PR 流水线通过但 MR 未自动合并且无法满足兜底合并条件（进入 `AutoMergeFallbackRules.mdc`）。
+16. main push 流水线失败且自动修复无效。
+17. TAPD 归档失败且无法自动重试成功。
 
 ---
 

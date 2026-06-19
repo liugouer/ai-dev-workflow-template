@@ -139,7 +139,8 @@ push 后必须确认：
 3. CNB PR 流水线是否通过
 4. 如果 PR 流水线失败，读取失败原因并修复
 5. 如果满足自动合并条件，执行自动合并
-6. 如果已合并，确认 main push 流水线是否通过
+6. 如果 PR 流水线通过但 MR 未自动合并，进入 `AutoMergeFallbackRules.mdc` 执行兜底合并
+7. 如果已合并，确认 main push 流水线是否通过
 
 ---
 
@@ -191,6 +192,7 @@ push 后必须确认：
 
 本规则配合以下规则使用：
 
+- `AutoMergeFallbackRules.mdc` — 自动合并兜底规则
 - `EffectFeedbackLoopRules.mdc` — 定义效果反馈场景下的修复闭环
 - `ExperienceLayeringRules.mdc` — 定义经验如何分层沉淀
 - `WorkflowCompletionRules.mdc` — 定义闭环完成的判定条件
