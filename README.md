@@ -6,12 +6,27 @@
 
 适用通过 **TAPD** 管理需求、**CodeBuddy** 辅助开发、**CNB** 管理 CI/CD 的任意项目。
 
-支持两种研发模式：
+支持四种研发命令和完整的迭代生命周期：
 
-| 模式 | 命令 | 适用场景 |
+| 命令 | 用途 | 适用场景 |
 |------|------|----------|
-| 单需求闭环 | `/newdev` | 单一最小需求单元，一次自动完成 Spec→开发→测试→Review→MR→合并→归档 |
-| 大功能批量闭环 | `/epicdev` | 大功能先拆解为多个最小需求单元，批量创建 TAPD 需求，按依赖顺序逐个自动执行闭环 |
+| `/newdev` | 单需求闭环 | 单一最小需求单元，一次自动完成 Spec→开发→测试→Review→MR→合并→归档 |
+| `/epicdev` | 大功能批量闭环 | 大功能先拆解为多个最小需求单元，批量创建 TAPD 需求，按依赖顺序逐个自动执行闭环 |
+| `/dailymaintain` | 每日维护 | 检查未完成需求、未合并 MR、失败流水线、未提交代码、知识库同步、经验沉淀 |
+| `/iteration` | 迭代生命周期 | 迭代启动（`--start`）、状态查询（`--status`）、版本收口（`--release`） |
+
+完整研发方式：
+
+```
+1. 前期配置规则和知识库
+2. /iteration --start v0.x.0     # 启动迭代
+3. /epicdev --plan {大功能}        # 拆解计划
+4. /epicdev --yes {大功能}         # 批量执行
+5. /dailymaintain                  # 每日维护
+6. /iteration --release v0.x.0    # 版本收口
+7. 同步通用经验到模板仓库
+8. 进入下一轮迭代
+```
 
 ## 自动研发闭环流程
 
@@ -50,6 +65,8 @@ TAPD 需求 / 自动创建需求
 | CNB 流水线结构 | pull_request 质量门禁 + push 归档（模板见 templates/cnb-pipeline-template.yml） |
 | `/newdev` 研发模式 | 单需求闭环，模板见 `templates/newdev-command-template.md` |
 | `/epicdev` 研发模式 | 大功能拆解+批量闭环，模板见 `templates/epicdev-command-template.md` |
+| `/iteration` 研发模式 | 迭代启动+状态查询+版本收口，模板见 `templates/iteration-command-template.md` |
+| `/dailymaintain` 研发模式 | 每日维护+自动修复，模板见 `templates/dailymaintain-command-template.md` |
 
 ### ⚠️ 必须替换
 
@@ -113,8 +130,11 @@ ai-dev-workflow-template/
 │   ├── tapd-requirement-template.md
 │   ├── newdev-command-template.md
 │   ├── epicdev-command-template.md
+│   ├── iteration-command-template.md
+│   ├── dailymaintain-command-template.md
 │   ├── autonomous-workflow-rules-template.mdc
 │   ├── EpicRequirementDecompositionRules-template.mdc
+│   ├── IterationLifecycleRules-template.mdc
 │   ├── HumanInterventionRules-template.mdc
 │   ├── cnb-pipeline-template.yml        # CNB 流水线模板（新业务项目复制此文件）
 │   └── knowledge-files/
@@ -136,6 +156,8 @@ ai-dev-workflow-template/
 | `/newdev` 命令 | ✅ |
 | `/newdev` 命令 | ✅ |
 | `/epicdev` 命令 | ✅ |
+| `/iteration` 命令 | ✅ |
+| `/dailymaintain` 命令 | ✅ |
 | TAPD 归档脚本 | ✅ (Python 脚本可独立运行) |
 | 覆盖率门禁 | 需替换为对应语言的覆盖率工具 |
 | 测试命令 | 需替换为对应语言的测试框架 |

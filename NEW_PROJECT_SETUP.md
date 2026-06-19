@@ -39,6 +39,8 @@ cp ../ai-dev-workflow-template/.codebuddy/rules/*.mdc .codebuddy/rules/
 mkdir -p .codebuddy/commands
 cp ../ai-dev-workflow-template/templates/newdev-command-template.md .codebuddy/commands/newdev.md
 cp ../ai-dev-workflow-template/templates/epicdev-command-template.md .codebuddy/commands/epicdev.md
+cp ../ai-dev-workflow-template/templates/iteration-command-template.md .codebuddy/commands/iteration.md
+cp ../ai-dev-workflow-template/templates/dailymaintain-command-template.md .codebuddy/commands/dailymaintain.md
 
 # 复制知识库模板
 cp -r ../ai-dev-workflow-template/.codebuddy/knowledge-template/ .codebuddy/knowledge/
@@ -188,7 +190,31 @@ imports:
 /epicdev --yes 用户管理功能
 ```
 
-### 11.3 验收标准
+### 11.3 迭代生命周期模式（`/iteration`）
+
+在 CodeBuddy 中输入：
+
+```
+/iteration --start v0.1.0
+```
+
+确认迭代范围后，观察需求拆解和创建是否正常。收口时输入：
+
+```
+/iteration --release v0.1.0
+```
+
+### 11.4 每日维护模式（`/dailymaintain`）
+
+在 CodeBuddy 中输入：
+
+```
+/dailymaintain
+```
+
+观察是否自动检查需求、MR、流水线、Git 状态并输出维护报告。
+
+### 11.5 验收标准
 
 观察以下流程是否全部自动完成：
 
@@ -207,6 +233,11 @@ imports:
 - ✅ 每个需求闭环独立完成
 - ✅ Epic 最终报告输出完整
 
+对于 `/iteration` 和 `/dailymaintain`，还需验证：
+- ✅ 迭代启动检查完整
+- ✅ 每日维护报告输出正确
+- ✅ 版本收口所有检查项通过
+
 ## 验收自检
 
 | 检查项 | 状态 |
@@ -223,6 +254,8 @@ imports:
 | .cnb.yml 已替换业务命令 | ☐ |
 | 冒烟测试需求通过完整闭环 | ☐ |
 | `/epicdev` 大功能拆解测试通过 | ☐ |
+| `/iteration --start` 迭代启动测试通过 | ☐ |
+| `/dailymaintain` 每日维护测试通过 | ☐ |
 
 ## 爱穿搭项目参考值（供对比）
 

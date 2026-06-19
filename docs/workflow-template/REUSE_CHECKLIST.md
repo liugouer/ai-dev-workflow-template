@@ -14,8 +14,11 @@
 | 6 | `.codebuddy/rules/WorkflowRules.mdc` | 流程规范，通用 | ☐ |
 | 7 | `.codebuddy/rules/DesignSpecRules.mdc` | Spec 规范，通用 | ☐ |
 | 8 | `.codebuddy/rules/HumanInterventionRules.mdc` | 人工介入断点规则 | ☐ |
-| 9 | `.codebuddy/rules/EpicRequirementDecompositionRules.mdc` | 大功能拆解规则 | ☐ |
-| 10 | `.codebuddy/commands/epicdev.md` | 大功能批量闭环命令 | ☐ |
+| 9 | `.codebuddy/rules/IterationLifecycleRules.mdc` | 迭代生命周期规则 | ☐ |
+| 10 | `.codebuddy/rules/EpicRequirementDecompositionRules.mdc` | 大功能拆解规则 | ☐ |
+| 11 | `.codebuddy/commands/epicdev.md` | 大功能批量闭环命令 | ☐ |
+| 12 | `.codebuddy/commands/iteration.md` | 迭代生命周期命令 | ☐ |
+| 13 | `.codebuddy/commands/dailymaintain.md` | 每日维护命令 | ☐ |
 
 ## ⚠️ 需要修改后使用
 
@@ -82,6 +85,9 @@
 | 10 | TAPD 归档完成 | 状态变为「已完成」 | ☐ |
 | 11 | `/epicdev --plan 大功能` | 拆解计划表格输出 | ☐ |
 | 12 | `/epicdev --yes 大功能` | 多需求按序闭环完成 | ☐ |
+| 13 | `/iteration --start v0.1.0` | 迭代启动+需求拆解正确 | ☐ |
+| 14 | `/dailymaintain` | 每日维护报告输出正确 | ☐ |
+| 15 | `/iteration --release v0.1.0` | 版本收口所有检查通过 | ☐ |
 
 ## 快速参考：爱穿搭→新项目映射表
 
