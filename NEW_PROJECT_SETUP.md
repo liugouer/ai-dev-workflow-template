@@ -35,6 +35,11 @@ cp -r ../ai-dev-workflow-template/scripts/ ./
 mkdir -p .codebuddy/rules
 cp ../ai-dev-workflow-template/.codebuddy/rules/*.mdc .codebuddy/rules/
 
+# 复制命令模板
+mkdir -p .codebuddy/commands
+cp ../ai-dev-workflow-template/templates/newdev-command-template.md .codebuddy/commands/newdev.md
+cp ../ai-dev-workflow-template/templates/epicdev-command-template.md .codebuddy/commands/epicdev.md
+
 # 复制知识库模板
 cp -r ../ai-dev-workflow-template/.codebuddy/knowledge-template/ .codebuddy/knowledge/
 ```
@@ -161,11 +166,29 @@ imports:
 
 ## 步骤 11：冒烟测试验证
 
+### 11.1 单需求模式（`/newdev`）
+
 在 CodeBuddy 中输入：
 
 ```
 /newdev 冒烟测试：返回 hello world 接口
 ```
+
+### 11.2 大功能批量模式（`/epicdev`）
+
+在 CodeBuddy 中输入：
+
+```
+/epicdev --plan 用户管理功能
+```
+
+先确认拆解计划正确，再输入：
+
+```
+/epicdev --yes 用户管理功能
+```
+
+### 11.3 验收标准
 
 观察以下流程是否全部自动完成：
 
@@ -177,6 +200,12 @@ imports:
 - ✅ AI Review ≥ 95
 - ✅ MR 自动合并
 - ✅ TAPD 归档完成
+
+对于 `/epicdev`，还需验证：
+- ✅ 拆解计划合理
+- ✅ 多个需求按依赖顺序执行
+- ✅ 每个需求闭环独立完成
+- ✅ Epic 最终报告输出完整
 
 ## 验收自检
 
@@ -193,6 +222,7 @@ imports:
 | Rules 中的业务参数已替换 | ☐ |
 | .cnb.yml 已替换业务命令 | ☐ |
 | 冒烟测试需求通过完整闭环 | ☐ |
+| `/epicdev` 大功能拆解测试通过 | ☐ |
 
 ## 爱穿搭项目参考值（供对比）
 

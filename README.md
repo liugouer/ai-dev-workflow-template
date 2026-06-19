@@ -4,7 +4,14 @@
 
 本仓库是一套**通用 AI 研发自动化闭环工作流模板**，从「爱穿搭 AI 试衣」项目 (`ai-tryon-workflow`) 的实际落地经验中萃取而来。
 
-适用于通过 **TAPD** 管理需求、**CodeBuddy** 辅助开发、**CNB** 管理 CI/CD 的任意项目。
+适用通过 **TAPD** 管理需求、**CodeBuddy** 辅助开发、**CNB** 管理 CI/CD 的任意项目。
+
+支持两种研发模式：
+
+| 模式 | 命令 | 适用场景 |
+|------|------|----------|
+| 单需求闭环 | `/newdev` | 单一最小需求单元，一次自动完成 Spec→开发→测试→Review→MR→合并→归档 |
+| 大功能批量闭环 | `/epicdev` | 大功能先拆解为多个最小需求单元，批量创建 TAPD 需求，按依赖顺序逐个自动执行闭环 |
 
 ## 自动研发闭环流程
 
@@ -41,6 +48,8 @@ TAPD 需求 / 自动创建需求
 | AI Review 规范 | 代码审查标准 |
 | 质量门禁规范 | 覆盖率>=90%、AI Review>=95 |
 | CNB 流水线结构 | pull_request 质量门禁 + push 归档（模板见 templates/cnb-pipeline-template.yml） |
+| `/newdev` 研发模式 | 单需求闭环，模板见 `templates/newdev-command-template.md` |
+| `/epicdev` 研发模式 | 大功能拆解+批量闭环，模板见 `templates/epicdev-command-template.md` |
 
 ### ⚠️ 必须替换
 
@@ -103,7 +112,10 @@ ai-dev-workflow-template/
 ├── templates/                           # 独立模板文件
 │   ├── tapd-requirement-template.md
 │   ├── newdev-command-template.md
+│   ├── epicdev-command-template.md
 │   ├── autonomous-workflow-rules-template.mdc
+│   ├── EpicRequirementDecompositionRules-template.mdc
+│   ├── HumanInterventionRules-template.mdc
 │   ├── cnb-pipeline-template.yml        # CNB 流水线模板（新业务项目复制此文件）
 │   └── knowledge-files/
 └── reports/                             # 归档报告（.gitignore 忽略）
@@ -122,6 +134,8 @@ ai-dev-workflow-template/
 | AI Code Review | ✅ |
 | CNB 流水线框架 | ✅ |
 | `/newdev` 命令 | ✅ |
+| `/newdev` 命令 | ✅ |
+| `/epicdev` 命令 | ✅ |
 | TAPD 归档脚本 | ✅ (Python 脚本可独立运行) |
 | 覆盖率门禁 | 需替换为对应语言的覆盖率工具 |
 | 测试命令 | 需替换为对应语言的测试框架 |

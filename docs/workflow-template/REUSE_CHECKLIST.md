@@ -13,6 +13,9 @@
 | 5 | `.codebuddy/rules/UnitTestRules.mdc` | 测试规范，通用 | ☐ |
 | 6 | `.codebuddy/rules/WorkflowRules.mdc` | 流程规范，通用 | ☐ |
 | 7 | `.codebuddy/rules/DesignSpecRules.mdc` | Spec 规范，通用 | ☐ |
+| 8 | `.codebuddy/rules/HumanInterventionRules.mdc` | 人工介入断点规则 | ☐ |
+| 9 | `.codebuddy/rules/EpicRequirementDecompositionRules.mdc` | 大功能拆解规则 | ☐ |
+| 10 | `.codebuddy/commands/epicdev.md` | 大功能批量闭环命令 | ☐ |
 
 ## ⚠️ 需要修改后使用
 
@@ -77,6 +80,8 @@
 | 8 | MR 自动创建 | CNB 上有 MR | ☐ |
 | 9 | MR 自动合并 | 合并到 main | ☐ |
 | 10 | TAPD 归档完成 | 状态变为「已完成」 | ☐ |
+| 11 | `/epicdev --plan 大功能` | 拆解计划表格输出 | ☐ |
+| 12 | `/epicdev --yes 大功能` | 多需求按序闭环完成 | ☐ |
 
 ## 快速参考：爱穿搭→新项目映射表
 
