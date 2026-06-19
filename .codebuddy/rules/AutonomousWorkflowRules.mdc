@@ -1,5 +1,5 @@
 ---
-description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档。配套规则：ExperienceLayeringRules.mdc（经验分层沉淀）、WorkflowCompletionRules.mdc（闭环完成判定）
+description: AI研发自动化闭环总控规则，支持 TAPD 需求创建、需求读取、Spec、开发、测试、AI Review、MR、自动合并与 TAPD 归档。配套规则：ExperienceLayeringRules.mdc（经验分层沉淀）、WorkflowCompletionRules.mdc（闭环完成判定）、HumanInterventionRules.mdc（人工介入断点）
 globs:
 alwaysApply: true
 -----------------
@@ -216,7 +216,7 @@ update_story_or_task
 ### 7.1 准备阶段
 
 1. 读取 `.codebuddy/knowledge` 下的项目知识库。
-2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc` 和 `WorkflowCompletionRules.mdc`）。
+2. 读取 `.codebuddy/rules` 下的全部规则（含 `ExperienceLayeringRules.mdc`、`WorkflowCompletionRules.mdc` 和 `HumanInterventionRules.mdc`）。
 3. 读取 TAPD 需求完整内容。
 4. 确认当前本地代码已同步 main。
 5. 确认工作区没有未处理的无关改动。
@@ -414,15 +414,21 @@ TAPD 状态同步是自动研发闭环的强制步骤，不允许静默跳过。
 
    然后重新执行测试和 Review。
 
-7. AI Code Review 通过、无 Critical 问题、代码已提交并 push 后，将状态更新为：
+7. 如果触发人工介入断点（依据 `HumanInterventionRules.mdc`），将状态更新为：
+
+   阻塞-需人工处理
+
+   人工配置完成后恢复执行时，状态从 阻塞-需人工处理 回到对应阶段。
+
+8. AI Code Review 通过、无 Critical 问题、代码已提交并 push 后，将状态更新为：
 
    待自动合并
 
-8. MR 创建成功后，需求状态必须保持为：
+9. MR 创建成功后，需求状态必须保持为：
 
    待自动合并
 
-9. MR 自动合并到 main 后，由 CNB main push 流水线执行 TAPD 归档，将需求状态更新为：
+10. MR 自动合并到 main 后，由 CNB main push 流水线执行 TAPD 归档，将需求状态更新为：
 
    已合并
 
@@ -430,7 +436,7 @@ TAPD 状态同步是自动研发闭环的强制步骤，不允许静默跳过。
 
    已完成
 
-10. CodeBuddy 必须在最终阶段检查 TAPD 是否已经变为「已完成」。
+11. CodeBuddy 必须在最终阶段检查 TAPD 是否已经变为「已完成」。
 
 11. **已完成状态必须满足两条流水线全部通过**（强制执行，依据 `WorkflowCompletionRules.mdc`）：
     - MR 合并前：PR 流水线（pull_request 触发）必须通过（pytest 全部通过 + 覆盖率 >= 90%）

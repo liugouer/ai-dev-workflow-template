@@ -45,6 +45,7 @@ TAPD 需求 / 自动创建需求
 | 效果反馈修复闭环 | 问题复现 → 修复 → 验证 → 推送 → CNB 检查 |
 | 经验分层沉淀规则 | 业务经验/通用经验/混合经验分层沉淀 |
 | 闭环完成判定规则 | PR 流水线 + Push 流水线全部通过才算完成 |
+| 人工介入断点规则 | 暂停条件、密钥处理、恢复执行规则 |
 
 ### ⚠️ 必须替换
 
@@ -96,6 +97,7 @@ ai-dev-workflow-template/
 │   │   ├── ExecutionGuardRules.mdc      #   执行护栏规则（强制预检+流水线检查）
 │   │   ├── ExperienceLayeringRules.mdc  #   经验分层沉淀规则
 │   │   ├── GitBranchRules.mdc           #   分支规范（替换 biz_prefix）
+│   │   ├── HumanInterventionRules.mdc   #   人工介入断点规则（暂停条件+密钥处理）
 │   │   ├── SecurityRules.mdc            #   安全规范
 │   │   ├── UnitTestRules.mdc            #   测试规范
 │   │   ├── WorkflowCompletionRules.mdc  #   闭环完成判定规则
@@ -117,7 +119,8 @@ ai-dev-workflow-template/
 │   │   ├── ExecutionGuardRules.mdc
 │   │   ├── EffectFeedbackLoopRules.mdc
 │   │   ├── ExperienceLayeringRules.mdc
-│   │   └── WorkflowCompletionRules.mdc
+│   │   ├── WorkflowCompletionRules.mdc
+│   │   └── HumanInterventionRules.mdc
 │   └── knowledge-files/
 └── reports/                             # 归档报告（.gitignore 忽略）
 ```

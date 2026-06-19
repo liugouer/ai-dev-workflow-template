@@ -50,6 +50,7 @@ cp -r ../ai-dev-workflow-template/.codebuddy/knowledge-template/ .codebuddy/know
 > | `EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环：问题复现、修复、验证、知识库同步、CNB 检查 |
 > | `ExperienceLayeringRules.mdc` | 经验分层沉淀：区分业务/通用/混合经验、沉淀位置映射、禁止沉淀规则 |
 > | `WorkflowCompletionRules.mdc` | 闭环完成判定：PR + Push 流水线全部通过、TAPD 归档成功才完成 |
+| `HumanInterventionRules.mdc` | 人工介入断点：暂停条件、密钥处理、恢复执行规则 |
 
 ## 步骤 3：配置 TAPD 项目 ID
 

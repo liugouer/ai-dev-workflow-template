@@ -30,8 +30,10 @@ pull_request:
           templates/rules/EffectFeedbackLoopRules.mdc
           templates/rules/ExperienceLayeringRules.mdc
           templates/rules/WorkflowCompletionRules.mdc
+          templates/rules/HumanInterventionRules.mdc
           docs/workflow-template/REUSE_CHECKLIST.md
           scripts/validate_template.py
+          .codebuddy/commands/newdev.md
         "
 
         for f in $required_files; do
@@ -161,8 +163,10 @@ push:
           templates/rules/EffectFeedbackLoopRules.mdc
           templates/rules/ExperienceLayeringRules.mdc
           templates/rules/WorkflowCompletionRules.mdc
+          templates/rules/HumanInterventionRules.mdc
           docs/workflow-template/REUSE_CHECKLIST.md
           scripts/validate_template.py
+          .codebuddy/commands/newdev.md
         "
 
         for f in $required_files; do

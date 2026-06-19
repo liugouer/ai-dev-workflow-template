@@ -16,10 +16,11 @@ alwaysApply: true
 | `EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环：问题复现、修复规则、本地验证、知识库同步、CNB 检查 |
 | `ExperienceLayeringRules.mdc` | 经验分层沉淀：区分业务经验/通用经验/混合经验、沉淀位置映射、禁止沉淀规则 |
 | `WorkflowCompletionRules.mdc` | 闭环完成判定：PR 流水线 + Push 流水线全部通过、TAPD 归档成功后才算完成 |
+| `HumanInterventionRules.mdc` | 人工介入断点：暂停条件、密钥处理、恢复执行规则、完成定义 |
 
-**新业务项目初始化后，必须将以上四个规则文件从 `templates/rules/` 复制到新业务仓库的 `.codebuddy/rules/` 下。**
+**新业务项目初始化后，必须将以上五个规则文件从 `templates/rules/` 复制到新业务仓库的 `.codebuddy/rules/` 下。**
 
-CodeBuddy 在执行本规则任一阶段时，必须同时遵循上述四条规则的约束。
+CodeBuddy 在执行本规则任一阶段时，必须同时遵循上述五条规则的约束。
 
 ---
 

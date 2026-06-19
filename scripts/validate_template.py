@@ -26,6 +26,7 @@ def check_required_files() -> list[str]:
         "templates/tapd-requirement-template.md",
         "templates/cnb-pipeline-template.yml",
         "docs/workflow-template/REUSE_CHECKLIST.md",
+        ".codebuddy/commands/newdev.md",
     ]
 
     for path in required:
@@ -57,6 +58,7 @@ def check_rules_dir() -> list[str]:
         "ExecutionGuardRules.mdc",
         "ExperienceLayeringRules.mdc",
         "GitBranchRules.mdc",
+        "HumanInterventionRules.mdc",
         "SecurityRules.mdc",
         "UnitTestRules.mdc",
         "WorkflowCompletionRules.mdc",
@@ -91,6 +93,7 @@ def check_templates_rules_dir() -> list[str]:
         "EffectFeedbackLoopRules.mdc",
         "ExperienceLayeringRules.mdc",
         "WorkflowCompletionRules.mdc",
+        "HumanInterventionRules.mdc",
     ]
 
     for f in expected:

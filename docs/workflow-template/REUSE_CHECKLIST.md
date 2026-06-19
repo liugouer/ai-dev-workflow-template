@@ -17,6 +17,7 @@
 | 9 | `.codebuddy/rules/EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环，通用 | ☐ |
 | 10 | `.codebuddy/rules/ExperienceLayeringRules.mdc` | 经验分层沉淀，通用 | ☐ |
 | 11 | `.codebuddy/rules/WorkflowCompletionRules.mdc` | 闭环完成判定，通用 | ☐ |
+| 12 | `.codebuddy/rules/HumanInterventionRules.mdc` | 人工介入断点，通用 | ☐ |
 
 ## ⚠️ 需要修改后使用
 
