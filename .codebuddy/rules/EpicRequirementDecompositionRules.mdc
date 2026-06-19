@@ -30,16 +30,18 @@ alwaysApply: true
 
 只允许做以下事情：
 
-1. 读取规则和知识库
-2. 分析大功能
-3. 拆解最小需求单元
-4. 输出需求拆解计划（表格格式）
-5. 输出执行顺序
-6. 输出风险和人工介入点
-7. 等待用户确认
+1. **首先执行 `BusinessInputChecklistRules.mdc`** — 输出业务资料清单（第一个强制步骤）
+2. 读取规则和知识库
+3. 分析大功能
+4. 拆解最小需求单元
+5. 输出需求拆解计划（表格格式）
+6. 输出执行顺序
+7. 输出风险和人工介入点
+8. 等待用户确认
 
 **禁止**直接创建 TAPD 需求。
 **禁止**直接开发代码。
+**禁止**跳过业务资料清单直接拆解需求。
 
 ### 3.2 yes 模式
 
@@ -149,13 +151,14 @@ alwaysApply: true
 
 执行 `/epicdev` 时必须优先读取并遵守：
 
-1. `ExecutionGuardRules.mdc` — 执行护栏
-2. `EffectFeedbackLoopRules.mdc` — 效果反馈修复闭环
-3. `ExperienceLayeringRules.mdc` — 经验分层沉淀
-4. `WorkflowCompletionRules.mdc` — 闭环完成判定
-5. `HumanInterventionRules.mdc` — 人工介入断点
-6. `AutonomousWorkflowRules.mdc` — 总控规则
-7. `.codebuddy/knowledge/` 下全部知识库
+1. `BusinessInputChecklistRules.mdc` — 业务资料清单（首个强制步骤）
+2. `ExecutionGuardRules.mdc` — 执行护栏
+3. `EffectFeedbackLoopRules.mdc` — 效果反馈修复闭环
+4. `ExperienceLayeringRules.mdc` — 经验分层沉淀
+5. `WorkflowCompletionRules.mdc` — 闭环完成判定
+6. `HumanInterventionRules.mdc` — 人工介入断点
+7. `AutonomousWorkflowRules.mdc` — 总控规则
+8. `.codebuddy/knowledge/` 下全部知识库
 
 ## 9. 人工介入规则
 

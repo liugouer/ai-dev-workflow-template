@@ -12,19 +12,21 @@ alwaysApply: true
 
 每个迭代必须经历：
 
-1. 迭代启动
-2. 需求拆解
-3. TAPD 创建
-4. 自动开发
-5. 每日维护
-6. 版本收口
-7. 经验沉淀
-8. 下一轮迭代建议
+1. 业务资料清单（首个强制步骤）
+2. 迭代启动
+3. 需求拆解
+4. TAPD 创建
+5. 自动开发
+6. 每日维护
+7. 版本收口
+8. 经验沉淀
+9. 下一轮迭代建议
 
 完整研发周期：
 
 ```
 前期规范约束
+  → 业务资料清单（BusinessInputChecklistRules.mdc，首个强制步骤）
   → 迭代启动（/iteration --start）
   → 大功能拆解（/epicdev --plan）
   → 最小需求单元创建
@@ -49,17 +51,18 @@ alwaysApply: true
 
 ### 2.2 启动时必须执行
 
-1. 读取 `.codebuddy/rules/` 下全部规则
-2. 读取 `.codebuddy/knowledge/` 下全部知识库
-3. 输出当前业务现状（上次迭代完成情况、已合并代码、已归档需求）
-4. 明确本轮迭代目标（version）
-5. 明确本轮不做什么（非目标范围）
-6. 检查 TAPD 项目和迭代是否存在
-7. 检查 CNB、MCP、密钥、规则、知识库是否可用
-8. 拆解本轮最小需求单元（依据 `EpicRequirementDecompositionRules.mdc`）
-9. 输出执行顺序（含依赖关系）
-10. 标记人工介入点（依据 `HumanInterventionRules.mdc`）
-11. 等待用户确认后再创建 TAPD 需求
+1. **首先执行 `BusinessInputChecklistRules.mdc`** — 输出业务资料清单（第一个强制步骤）
+2. 读取 `.codebuddy/rules/` 下全部规则
+3. 读取 `.codebuddy/knowledge/` 下全部知识库
+4. 输出当前业务现状（上次迭代完成情况、已合并代码、已归档需求）
+5. 明确本轮迭代目标（version）
+6. 明确本轮不做什么（非目标范围）
+7. 检查 TAPD 项目和迭代是否存在
+8. 检查 CNB、MCP、密钥、规则、知识库是否可用
+9. 拆解本轮最小需求单元（依据 `EpicRequirementDecompositionRules.mdc`）
+10. 输出执行顺序（含依赖关系）
+11. 标记人工介入点（依据 `HumanInterventionRules.mdc`）
+12. 等待用户确认后再创建 TAPD 需求
 
 ### 2.3 禁止行为
 
@@ -236,13 +239,14 @@ CodeBuddy 必须检查以下 10 项：
 
 执行迭代流程时必须同时遵守：
 
-1. `ExecutionGuardRules.mdc` — 执行护栏
-2. `EffectFeedbackLoopRules.mdc` — 效果反馈修复闭环
-3. `ExperienceLayeringRules.mdc` — 经验分层沉淀
-4. `WorkflowCompletionRules.mdc` — 闭环完成判定
-5. `HumanInterventionRules.mdc` — 人工介入断点
-6. `EpicRequirementDecompositionRules.mdc` — 大功能拆解
-7. `AutonomousWorkflowRules.mdc` — 总控规则
+1. `BusinessInputChecklistRules.mdc` — 业务资料清单（首个强制步骤）
+2. `ExecutionGuardRules.mdc` — 执行护栏
+3. `EffectFeedbackLoopRules.mdc` — 效果反馈修复闭环
+4. `ExperienceLayeringRules.mdc` — 经验分层沉淀
+5. `WorkflowCompletionRules.mdc` — 闭环完成判定
+6. `HumanInterventionRules.mdc` — 人工介入断点
+7. `EpicRequirementDecompositionRules.mdc` — 大功能拆解
+8. `AutonomousWorkflowRules.mdc` — 总控规则
 
 ---
 
