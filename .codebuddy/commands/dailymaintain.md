@@ -22,7 +22,7 @@ CodeBuddy 必须执行以下 10 项检查：
 |---|--------|------|
 | 1 | 当前未完成 TAPD 需求 | 查询所有非「已完成」需求 |
 | 2 | 当前阻塞 TAPD 需求 | 查询「阻塞-需人工处理」需求 |
-| 3 | 当前未合并 MR | 查询所有 open MR，对已通过流水线但未合并的 MR 进入 `AutoMergeFallbackRules.mdc` |
+| 3 | 当前未合并 MR | 查询所有 open MR，对已通过流水线但未合并的 MR 进入 `AutoMergeFallbackRules.mdc`（含自动修复流程） |
 | 4 | 当前失败 CNB 流水线 | 检查 PR/Push 流水线状态 |
 | 5 | 当前未提交文件 | `git status` |
 | 6 | 当前未 push commit | `git log --branches --not --remotes` |

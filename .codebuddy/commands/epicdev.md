@@ -77,7 +77,7 @@
 8. Commit & Push
 9. 创建 MR
 10. CNB 检查
-11. 自动合并（如 PR 流水线通过但未自动合并，进入 `AutoMergeFallbackRules.mdc` 兜底）
+11. 自动合并（如 PR 流水线通过但未自动合并，进入 `AutoMergeFallbackRules.mdc` 兜底；如合并失败，先进入 §4 自动修复，最多 3 轮）
 12. TAPD 归档
 
 **每个需求必须走完完整闭环后才能进入下一个需求。**

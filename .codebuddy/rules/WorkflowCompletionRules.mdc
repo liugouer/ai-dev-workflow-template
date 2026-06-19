@@ -63,7 +63,9 @@ MR 自动合并后，CodeBuddy 必须检查：
 
 ### 3.3 流水线失败处理
 
-如果 main push 流水线或 TAPD 归档失败，必须输出失败原因。
+如果 main push 流水线或 TAPD 归档失败，必须先进入 `AutoMergeFallbackRules.mdc` §4 自动修复处理，尝试自动定位并修复。
+
+只有当失败原因属于 `AutoMergeFallbackRules.mdc` §4.4 人工介入范围，或连续 3 次自动修复仍失败时，才允许输出失败原因并暂停。
 
 ---
 
@@ -80,8 +82,8 @@ TAPD 状态「已完成」必须满足两条流水线全部通过（强制执行
 
 | 场景 | 处理方式 |
 |------|----------|
-| PR 流水线失败 | 禁止自动合并，修复代码后重新触发 |
-| Push 流水线 pytest/coverage 失败 | 即使 PR 流水线已通过，**不得**将状态更新为已完成，必须分析失败原因并修复 |
+| PR 流水线失败 | 禁止自动合并，先进入 `AutoMergeFallbackRules.mdc` §4 自动修复，修复代码后重新触发 |
+| Push 流水线 pytest/coverage 失败 | 即使 PR 流水线已通过，**不得**将状态更新为已完成，必须先进入 `AutoMergeFallbackRules.mdc` §4 自动修复，自动修复不可行时暂停 |
 | Push 流水线归档阶段失败 | TAPD 状态保持「已合并」，**不得**假装更新为已完成 |
 
 ### 4.3 不得提前判定
