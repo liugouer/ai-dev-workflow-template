@@ -1,0 +1,145 @@
+---
+description: 经验分层沉淀规则，区分业务经验、通用经验、混合经验的沉淀位置与禁止项
+globs:
+alwaysApply: true
+-----------------
+
+# ExperienceLayeringRules
+
+## 1. 目标
+
+每次 AI 研发自动化闭环完成前，CodeBuddy 必须执行「经验分层沉淀检查」。
+
+目标是区分：
+
+1. **业务经验** — 仅适用于当前业务项目
+2. **通用工作流经验** — 可跨多个业务项目复用
+3. **混合经验** — 同时包含业务和通用部分
+4. **临时问题记录** — 仅报告，不进入长期知识库
+
+不同类型经验必须沉淀到不同位置，禁止混淆。
+
+---
+
+## 2. 业务经验沉淀
+
+如果本轮需求产生的经验只适用于当前业务项目，则必须沉淀到当前业务项目的 `.codebuddy/knowledge/` 目录。
+
+### 2.1 业务经验范围
+
+当前业务的接口设计、数据结构、页面交互、核心模块、状态流转、模型适配逻辑、异常处理规则、验收标准、术语和边界。
+
+### 2.2 沉淀位置映射
+
+| 变化类型 | 更新文件 |
+|----------|----------|
+| 项目背景变化 | `.codebuddy/knowledge/01_项目概述.md` |
+| 架构或状态流转变化 | `.codebuddy/knowledge/02_架构设计.md` |
+| 核心模块变化 | `.codebuddy/knowledge/03_核心模块.md` |
+| 接口变化 | `.codebuddy/knowledge/04_接口规范.md` |
+| 开发、测试、运行方式变化 | `.codebuddy/knowledge/05_开发指南.md` |
+| 新增扩展方向或索引变化 | `.codebuddy/knowledge/06_扩展索引.md` |
+
+### 2.3 业务经验约束
+
+业务经验不得直接写入通用模板仓库（`ai-dev-workflow-template`），除非已经抽象为跨业务可复用模式。
+
+---
+
+## 3. 通用经验沉淀
+
+如果本轮需求产生的经验可以被多个业务项目复用，则必须建议同步到 `ai-dev-workflow-template` 模板仓库。
+
+### 3.1 通用经验范围
+
+TAPD 需求创建规则、TAPD 状态流转规则、`/newdev` 命令模式、Spec 生成规范、分支命名规范、测试覆盖率门禁、AI Code Review 门禁、自动修复策略、MR 自动合并前置条件、CNB 流水线模式、TAPD 自动归档模式、知识库同步检查机制、新项目初始化步骤、跨项目复用清单。
+
+### 3.2 通用经验更新目标
+
+| 经验类型 | 更新文件 |
+|----------|----------|
+| 通用规则 | `templates/autonomous-workflow-rules-template.mdc` |
+| `/newdev` 命令 | `templates/newdev-command-template.md` |
+| TAPD 需求模板 | `templates/tapd-requirement-template.md` |
+| 新项目初始化 | `NEW_PROJECT_SETUP.md` |
+| 复用清单 | `docs/workflow-template/REUSE_CHECKLIST.md` |
+| 模板说明 | `README.md` |
+| 配置项示例 | `workflow.config.example.yml` |
+
+---
+
+## 4. 混合经验拆分
+
+如果某个经验同时包含业务部分和通用部分，必须拆分沉淀：
+
+1. 识别业务特定部分 → 沉淀到当前业务项目 `.codebuddy/knowledge/`
+2. 识别通用模式部分 → 建议同步到 `ai-dev-workflow-template`
+3. 拆分时必须去业务化：将业务专用名称替换为通用描述
+
+### 4.1 拆分示例
+
+假设本轮实现"{TASK_NAME}异步化"：
+
+**业务经验**（→ `.codebuddy/knowledge/`）：
+- {TASK_NAME}状态流转（如 pending、processing、success、failed）
+- POST {BUSINESS_API_PREFIX} 创建任务
+- GET {BUSINESS_API_PREFIX}/tasks/{task_id} 查询任务
+
+**通用经验**（→ `ai-dev-workflow-template`）：
+- 长耗时 AI 任务建议采用 task_id + 后台任务 + 状态查询模式
+- GET 查询接口不应触发任务执行
+- 后台任务状态变化应由 worker 完成
+
+---
+
+## 5. 禁止沉淀规则
+
+以下内容**不得**沉淀到模板仓库：
+
+1. 当前业务专用接口路径
+2. 当前业务专用字段
+3. 当前业务专用页面文案
+4. 当前业务专用模型服务地址
+5. TAPD 真实项目 ID
+6. CNB 密钥仓库内容
+7. API 密钥、token、密码
+8. 用户上传文件
+9. 私有 URL
+10. 临时调试日志
+
+### 5.1 安全占位符
+
+如果需要在模板中说明，应使用以下占位符：
+
+| 占位符 | 说明 |
+|--------|------|
+| `{PROJECT_NAME}` | 项目名称 |
+| `{BUSINESS_NAME}` | 业务名称 |
+| `{TAPD_WORKSPACE_ID}` | TAPD 项目 ID |
+| `{DEFAULT_ITERATION}` | 默认迭代名称 |
+| `{BUSINESS_API_PREFIX}` | 业务 API 前缀 |
+| `{BIZ_PREFIX}` | 业务前缀标识 |
+
+---
+
+## 6. 闭环报告增量
+
+每次需求完成后，最终报告必须包含经验沉淀段落：
+
+1. 本轮是否产生业务经验 / 已更新文件列表
+2. 本轮是否产生通用经验 / 同步建议
+3. 是否产生混合经验 / 拆分结果
+4. 禁止沉淀检查：是否通过 / 风险项
+5. 模板仓库安全确认：无密钥、私有 URL、业务敏感数据进入
+
+---
+
+## 7. 执行原则
+
+CodeBuddy 必须遵守：
+
+1. **业务经验留在业务项目** — 不污染模板仓库
+2. **通用经验进入模板仓库** — 提升跨项目复用性
+3. **混合经验先拆分再沉淀** — 不混淆两种经验
+4. **临时问题只进入报告** — 不进入长期知识库
+5. **模板仓库只保留跨业务可复用能力** — 不含业务敏感数据

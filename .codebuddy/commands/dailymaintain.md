@@ -27,8 +27,8 @@ CodeBuddy 必须执行以下 10 项检查：
 | 5 | 当前未提交文件 | `git status` |
 | 6 | 当前未 push commit | `git log --branches --not --remotes` |
 | 7 | 当前知识库是否需要更新 | 对比 commit 时间与知识库更新时间 |
-| 8 | 当前是否产生通用经验 | 检查知识库更新差异 |
-| 9 | 是否需要同步模板仓库 | 通用经验同步阈值 |
+| 8 | 当前是否产生通用经验 | 检查 `.codebuddy/knowledge/` 更新差异 |
+| 9 | 是否需要同步模板仓库 | 通用经验是否已达同步阈值 |
 | 10 | 是否存在人工介入事项 | 依据 `HumanInterventionRules.mdc` |
 
 ## 默认参数
@@ -43,13 +43,13 @@ CodeBuddy 必须执行以下 10 项检查：
 3. 执行前必须读取 `.codebuddy/knowledge/` 下全部知识库
 4. 发现可自动修复问题 → 进入修复闭环
 5. 发现需人工处理问题 → 进入 `HumanInterventionRules.mdc`
-6. 修复后必须重新运行本地验证
+6. 修复后必须重新运行本地验证（pytest + 覆盖率）
 7. 维护结束必须输出维护报告
 8. 必须遵守 `ExecutionGuardRules.mdc` 执行护栏
 
 ## 自动修复规则
 
-- 未提交文件 → commit & push
+- 未提交文件 → `git add . && git commit -m "chore: daily maintain auto-fix"`
 - 未 push → `git push`
 - 测试失败且可自动修复 → 依据 `EffectFeedbackLoopRules.mdc` 修复
 - 同一问题连续修复 3 次仍失败 → 暂停，转入人工介入

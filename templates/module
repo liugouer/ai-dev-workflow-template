@@ -1,0 +1,261 @@
+请基于 ai-dev-workflow-template 初始化当前新业务项目，并根据业务信息自动生成业务知识库。
+
+## 一、项目信息
+
+当前新业务仓库路径：
+
+{CURRENT_PROJECT_PATH}
+
+模板仓库路径：
+
+E:\workspace\ai-dev-workflow-template
+
+新业务项目名：
+
+{PROJECT_NAME}
+
+新业务名称：
+
+{BUSINESS_NAME}
+
+业务一句话说明：
+
+{BUSINESS_DESCRIPTION}
+
+目标用户：
+
+{TARGET_USER}
+
+MVP 第一条核心能力：
+
+{MVP_FIRST_CAPABILITY}
+
+业务 API 前缀：
+
+{BUSINESS_API_PREFIX}
+
+业务前缀：
+
+{BIZ_PREFIX}
+
+技术栈：
+
+Python FastAPI + pytest
+
+TAPD 项目 ID：
+
+{TAPD_WORKSPACE_ID}
+
+默认迭代：
+
+{DEFAULT_ITERATION}
+
+目标分支：
+
+main
+
+---
+
+## 二、执行目标
+
+请将当前空仓库初始化为一个新的 AI 研发自动化业务项目。
+
+该项目必须基于 ai-dev-workflow-template，但不能复制任何旧业务项目的业务代码、测试、历史 Spec、历史 reports 或私有配置。
+
+你需要自动完成：
+
+1. 复制通用工作流模板
+2. 初始化 CodeBuddy Rules
+3. 根据当前业务自动生成业务知识库
+4. 初始化基础 FastAPI 项目结构
+5. 初始化 pytest 测试结构
+6. 配置 CNB 质量门禁
+7. 配置 /newdev 命令
+8. 生成 workflow.config.yml
+9. 提交并 push 初始化代码
+
+初始化完成后，不要立即开发业务需求，先输出目录结构和初始化报告，等待我确认。
+
+---
+
+## 三、业务知识库生成要求
+
+请根据我提供的业务信息，自动生成以下业务知识库文件：
+
+.codebuddy/knowledge/01_项目概述.md
+.codebuddy/knowledge/02_架构设计.md
+.codebuddy/knowledge/03_核心模块.md
+.codebuddy/knowledge/04_接口规范.md
+.codebuddy/knowledge/05_开发指南.md
+.codebuddy/knowledge/06_扩展索引.md
+
+业务知识库必须围绕当前新业务生成，不允许复制爱穿搭试衣、FAQ、订单、RAG 等其他项目的业务内容。
+
+如果业务信息不足，请最多提出 3 个关键澄清问题。
+如果可以基于现有信息合理推断，请先写出“业务假设”，然后生成知识库。
+
+知识库内容要求：
+
+1. 01_项目概述.md
+   说明项目目标、目标用户、MVP 范围、本次不做、未来扩展方向。
+
+2. 02_架构设计.md
+   说明技术栈、目录结构、核心流程、接口分层、数据流、后续扩展点。
+
+3. 03_核心模块.md
+   说明核心模块职责，例如 API 层、Service 层、Schema 层、存储层、适配器层等。
+
+4. 04_接口规范.md
+   根据业务自动规划 MVP 阶段需要的接口，包括路径、方法、请求字段、响应字段、错误响应。
+
+5. 05_开发指南.md
+   说明本地启动、测试、覆盖率、分支命名、开发边界、质量门禁。
+
+6. 06_扩展索引.md
+   记录未来可扩展能力、待拆分需求、业务术语、重要决策索引。
+
+---
+
+## 四、模板复制要求
+
+请从 ai-dev-workflow-template 复制并适配以下内容：
+
+1. .codebuddy/rules/
+2. .codebuddy/commands/newdev.md
+3. scripts/check_coverage.py
+4. scripts/tapd_archive.py
+5. workflow.config.example.yml，并生成 workflow.config.yml
+6. templates/cnb-pipeline-template.yml，并复制为当前项目根目录 .cnb.yml
+7. docs/workflow-template/ 中必要说明文档
+
+复制后必须替换占位符：
+
+* {PROJECT_NAME} → {PROJECT_NAME}
+* {BUSINESS_NAME} → {BUSINESS_NAME}
+* {BUSINESS_DESCRIPTION} → {BUSINESS_DESCRIPTION}
+* {BUSINESS_API_PREFIX} → {BUSINESS_API_PREFIX}
+* {BIZ_PREFIX} → {BIZ_PREFIX}
+* {TAPD_WORKSPACE_ID} → {TAPD_WORKSPACE_ID}
+* {DEFAULT_ITERATION} → {DEFAULT_ITERATION}
+* {TARGET_BRANCH} → main
+
+---
+
+## 五、禁止复制内容
+
+严禁从其他业务项目复制以下内容：
+
+1. src/ 旧业务代码
+2. tests/ 旧业务测试
+3. static/ 旧业务静态资源
+4. specs/ 历史业务 Spec
+5. reports/ 历史归档报告
+6. coverage.xml
+7. .coverage
+8. .pytest_cache
+9. **pycache**
+10. 真实密钥
+11. TAPD API 密码
+12. CNB 密钥仓库内容
+13. token
+14. 私有 URL
+15. 用户上传文件
+16. 任何只属于其他业务项目的知识库内容
+
+---
+
+## 六、基础代码初始化要求
+
+请初始化一个最小可运行 FastAPI 项目。
+
+建议目录：
+
+src/
+main.py
+config.py
+schemas.py
+services/
+utils/
+
+tests/
+test_health.py
+
+基础能力：
+
+1. GET /health 返回服务健康状态
+2. pytest 可以运行
+3. 覆盖率检查可以运行
+4. CNB 流水线可以执行测试和覆盖率门禁
+5. 不提前实现 MVP 业务接口，除非初始化必须需要
+
+---
+
+## 七、CNB 配置要求
+
+请将 templates/cnb-pipeline-template.yml 复制为当前项目根目录 .cnb.yml，并替换成当前项目可运行版本。
+
+要求：
+
+1. pull_request 流水线运行测试和覆盖率检查
+2. push main 流水线运行测试、覆盖率检查和 TAPD 归档
+3. Docker 镜像使用 python:3.11-slim
+4. 安装命令适配 requirements.txt
+5. 测试命令使用 pytest --cov=src --cov-report=term-missing --cov-report=xml
+6. 覆盖率检查使用 scripts/check_coverage.py
+7. TAPD 归档使用 scripts/tapd_archive.py
+8. secrets 仓库路径不要写死，如果未知，请使用占位符并在最终报告中提示人工配置
+
+---
+
+## 八、经验沉淀规则
+
+请确保当前项目继承经验分层沉淀机制：
+
+1. 当前业务经验沉淀到当前项目 .codebuddy/knowledge/
+2. 通用研发流程经验沉淀到 ai-dev-workflow-template
+3. 混合经验先拆分再沉淀
+4. 禁止把业务私有信息、密钥、真实 TAPD 项目 ID、私有 URL 写入模板仓库
+5. 每次 /newdev 完成后，最终报告必须输出：
+
+   * 是否产生业务经验
+   * 更新了哪些知识库文件
+   * 是否产生通用经验
+   * 是否建议同步模板仓库
+   * 是否存在敏感信息误入模板
+
+---
+
+## 九、提交要求
+
+请在当前新业务仓库中完成初始化后执行：
+
+1. git status
+2. git add .
+3. git commit -m "chore: initialize AI development workflow project"
+4. git push
+
+如果 main 分支受保护，不能直接 push main，则：
+
+1. 创建分支 chore/init-workflow-project
+2. push 分支
+3. 创建 MR 到 main
+
+---
+
+## 十、最终输出
+
+初始化完成后，请输出：
+
+1. 当前项目名
+2. 当前业务名称
+3. 当前仓库路径
+4. 是否成功复制模板
+5. 是否成功生成业务知识库
+6. 是否成功初始化 FastAPI 项目
+7. 是否成功配置 .cnb.yml
+8. 是否成功配置 /newdev
+9. 是否提交并 push
+10. 是否创建 MR
+11. 初始化后的目录结构
+12. 仍需人工配置的事项
+13. 建议的第一条 MVP 需求

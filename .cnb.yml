@@ -3,273 +3,423 @@
 #
 # 新业务项目请使用 templates/cnb-pipeline-template.yml
 
-main:
-  pull_request:
-    - name: Template integrity validation
-      docker:
-        image: python:3.11-slim
-      stages:
-        - name: Validate template files
-          script: |
-            set -e
-            echo "=== 模板仓库自检 ==="
+api_trigger:
+  stages:
+    - name: Validate template files (api)
+      image: python:3.11-slim
+      script: |
+        set -e
+        echo "=== 模板仓库 API 自检 ==="
 
-            errors=0
+        errors=0
 
-            echo ""
-            echo "--- 必须存在的模板文件 ---"
+        echo ""
+        echo "--- 必须存在的模板文件 ---"
 
-            required_files="
-              README.md
-              NEW_PROJECT_SETUP.md
-              workflow.config.example.yml
-              templates/autonomous-workflow-rules-template.mdc
-              templates/newdev-command-template.md
-              templates/tapd-requirement-template.md
-              templates/cnb-pipeline-template.yml
-              docs/workflow-template/REUSE_CHECKLIST.md
-            "
+        required_files="
+          README.md
+          NEW_PROJECT_SETUP.md
+          workflow.config.example.yml
+          templates/autonomous-workflow-rules-template.mdc
+          templates/newdev-command-template.md
+          templates/epicdev-command-template.md
+          templates/iteration-command-template.md
+          templates/dailymaintain-command-template.md
+          templates/tapd-requirement-template.md
+          templates/cnb-pipeline-template.yml
+          templates/rules/ExecutionGuardRules.mdc
+          templates/rules/EffectFeedbackLoopRules.mdc
+          templates/rules/ExperienceLayeringRules.mdc
+          templates/rules/WorkflowCompletionRules.mdc
+          templates/rules/HumanInterventionRules.mdc
+          templates/rules/EpicRequirementDecompositionRules.mdc
+          templates/rules/IterationLifecycleRules.mdc
+          docs/workflow-template/REUSE_CHECKLIST.md
+          scripts/validate_template.py
+          .codebuddy/commands/newdev.md
+          .codebuddy/commands/epicdev.md
+          .codebuddy/commands/iteration.md
+          .codebuddy/commands/dailymaintain.md
+        "
 
-            for f in $required_files; do
-              if [ -f "$f" ]; then
-                echo "  OK: $f"
-              else
-                echo "  MISSING: $f"
-                errors=$((errors + 1))
-              fi
-            done
+        for f in $required_files; do
+          if [[ -f "$f" ]]; then
+            echo "  OK: $f"
+          else
+            echo "  MISSING: $f"
+            errors=$((errors + 1))
+          fi
+        done
 
-            echo ""
-            echo "--- templates/knowledge-files/ 目录 ---"
-            if [ -d "templates/knowledge-files" ]; then
-              echo "  OK: templates/knowledge-files/ exists"
-            else
-              echo "  MISSING: templates/knowledge-files/ does not exist"
-              errors=$((errors + 1))
-            fi
+        echo ""
+        echo "--- templates/knowledge-files/ 目录 ---"
+        if [[ -d "templates/knowledge-files" ]]; then
+          echo "  OK: templates/knowledge-files/ exists"
+        else
+          echo "  MISSING: templates/knowledge-files/ does not exist"
+          errors=$((errors + 1))
+        fi
 
-            echo ""
-            echo "--- 不应存在的业务目录 ---"
+        echo ""
+        echo "--- 不应存在的业务目录 ---"
 
-            forbidden_dirs="
-              src
-              tests
-              specs
-              reports
-            "
+        forbidden_dirs="
+          src
+          tests
+          specs
+          reports
+        "
 
-            for d in $forbidden_dirs; do
-              if [ -d "$d" ]; then
-                echo "  WARNING: $d/ should not exist in template repo"
-                errors=$((errors + 1))
-              else
-                echo "  OK: $d/ not found (as expected)"
-              fi
-            done
+        for d in $forbidden_dirs; do
+          if [[ -d "$d" ]]; then
+            echo "  WARNING: $d/ should not exist in template repo"
+            errors=$((errors + 1))
+          else
+            echo "  OK: $d/ not found (as expected)"
+          fi
+        done
 
-            echo ""
-            echo "--- 不应存在的构建产物 ---"
+        echo ""
+        echo "--- 不应存在的构建产物 ---"
 
-            forbidden_files="
-              coverage.xml
-              .coverage
-            "
+        forbidden_files="
+          coverage.xml
+          .coverage
+        "
 
-            for f in $forbidden_files; do
-              if [ -f "$f" ]; then
-                echo "  WARNING: $f should not exist in template repo"
-                errors=$((errors + 1))
-              else
-                echo "  OK: $f not found (as expected)"
-              fi
-            done
+        for f in $forbidden_files; do
+          if [[ -f "$f" ]]; then
+            echo "  WARNING: $f should not exist in template repo"
+            errors=$((errors + 1))
+          else
+            echo "  OK: $f not found (as expected)"
+          fi
+        done
 
-            echo ""
-            echo "--- 不应存在的缓存目录 ---"
-            if [ -d ".pytest_cache" ]; then
-              echo "  WARNING: .pytest_cache/ should not exist in template repo"
-              errors=$((errors + 1))
-            else
-              echo "  OK: .pytest_cache/ not found (as expected)"
-            fi
+        echo ""
+        echo "--- 不应存在的缓存目录 ---"
+        if [[ -d ".pytest_cache" ]]; then
+          echo "  WARNING: .pytest_cache/ should not exist in template repo"
+          errors=$((errors + 1))
+        else
+          echo "  OK: .pytest_cache/ not found (as expected)"
+        fi
 
-            echo ""
-            echo "--- 检查硬编码敏感信息 ---"
+        echo ""
+        echo "--- 检查硬编码敏感信息 ---"
 
-            # 仅检查根目录配置文件，排除：
-            #   - scripts/ (脚本中环境变量引用是合法的)
-            #   - docs/    (文档中示例说明是合法的)
-            #   - templates/ (模板中说明是合法的)
-            #   - .git/ .cnb.yml 自身
-            scan_dirs=".codebuddy"
-            real=""
-            for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
-              hits=$(grep -rI "$chk_pattern" $scan_dirs 2>/dev/null || true)
-              # 过滤包含 < 的占位符行
-              hits=$(echo "$hits" | grep -v "<" || true)
-              if [ -n "$hits" ]; then
-                real="${real}${hits}
-"
-              fi
-            done
-            # 额外检查根目录的 yml/md/json 文件（排除 .cnb.yml）
-            for f in *.yml *.md *.json 2>/dev/null; do
-              if [ "$f" = ".cnb.yml" ]; then continue; fi
-              hits=$(grep -HI "TAPD_API_" "$f" 2>/dev/null || true)
-              hits=$(echo "$hits" | grep -v "<" || true)
-              if [ -n "$hits" ]; then
-                real="${real}${hits}
-"
-              fi
-            done
-            if [ -n "$real" ]; then
-              echo "  WARNING: potential hardcoded secrets found:"
-              echo "$real"
-              errors=$((errors + 1))
-            else
-              echo "  OK: no hardcoded secrets found"
-            fi
+        scan_dirs=".codebuddy"
+        real=""
+        for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
+          hits=$(grep -rI "$chk_pattern" $scan_dirs 2>/dev/null || true)
+          hits=$(echo "$hits" | grep -v "<" || true)
+          if [[ -n "$hits" ]]; then
+            real="${real}${hits}\n"
+          fi
+        done
+        for f in *.yml *.md *.json 2>/dev/null; do
+          if [[ "$f" = ".cnb.yml" ]]; then continue; fi
+          hits=$(grep -HI "TAPD_API_" "$f" 2>/dev/null || true)
+          hits=$(echo "$hits" | grep -v "<" || true)
+          if [[ -n "$hits" ]]; then
+            real="${real}${hits}\n"
+          fi
+        done
+        if [[ -n "$real" ]]; then
+          echo "  WARNING: potential hardcoded secrets found:"
+          echo "$real"
+          errors=$((errors + 1))
+        else
+          echo "  OK: no hardcoded secrets found"
+        fi
 
-            echo ""
-            if [ "$errors" -gt 0 ]; then
-              echo "=== 自检失败: $errors 个问题 ==="
-              exit 1
-            else
-              echo "=== 自检全部通过 ==="
-              exit 0
-            fi
+        echo ""
+        if [[ "$errors" -gt 0 ]]; then
+          echo "=== 自检失败: $errors 个问题 ==="
+          exit 1
+        else
+          echo "=== 自检全部通过 ==="
+          exit 0
+        fi
 
-  push:
-    - name: Template integrity validation
-      docker:
-        image: python:3.11-slim
-      stages:
-        - name: Validate template files
-          script: |
-            set -e
-            echo "=== 模板仓库自检 ==="
+pull_request:
+  branches:
+    - main
+  stages:
+    - name: Validate template files
+      image: python:3.11-slim
+      script: |
+        set -e
+        echo "=== 模板仓库 PR 自检 ==="
 
-            errors=0
+        errors=0
 
-            echo ""
-            echo "--- 必须存在的模板文件 ---"
+        echo ""
+        echo "--- 必须存在的模板文件 ---"
 
-            required_files="
-              README.md
-              NEW_PROJECT_SETUP.md
-              workflow.config.example.yml
-              templates/autonomous-workflow-rules-template.mdc
-              templates/newdev-command-template.md
-              templates/tapd-requirement-template.md
-              templates/cnb-pipeline-template.yml
-              docs/workflow-template/REUSE_CHECKLIST.md
-            "
+        required_files="
+          README.md
+          NEW_PROJECT_SETUP.md
+          workflow.config.example.yml
+          templates/autonomous-workflow-rules-template.mdc
+          templates/newdev-command-template.md
+          templates/epicdev-command-template.md
+          templates/iteration-command-template.md
+          templates/dailymaintain-command-template.md
+          templates/tapd-requirement-template.md
+          templates/cnb-pipeline-template.yml
+          templates/rules/ExecutionGuardRules.mdc
+          templates/rules/EffectFeedbackLoopRules.mdc
+          templates/rules/ExperienceLayeringRules.mdc
+          templates/rules/WorkflowCompletionRules.mdc
+          templates/rules/HumanInterventionRules.mdc
+          templates/rules/EpicRequirementDecompositionRules.mdc
+          templates/rules/IterationLifecycleRules.mdc
+          docs/workflow-template/REUSE_CHECKLIST.md
+          scripts/validate_template.py
+          .codebuddy/commands/newdev.md
+          .codebuddy/commands/epicdev.md
+          .codebuddy/commands/iteration.md
+          .codebuddy/commands/dailymaintain.md
+        "
 
-            for f in $required_files; do
-              if [ -f "$f" ]; then
-                echo "  OK: $f"
-              else
-                echo "  MISSING: $f"
-                errors=$((errors + 1))
-              fi
-            done
+        for f in $required_files; do
+          if [[ -f "$f" ]]; then
+            echo "  OK: $f"
+          else
+            echo "  MISSING: $f"
+            errors=$((errors + 1))
+          fi
+        done
 
-            echo ""
-            echo "--- templates/knowledge-files/ 目录 ---"
-            if [ -d "templates/knowledge-files" ]; then
-              echo "  OK: templates/knowledge-files/ exists"
-            else
-              echo "  MISSING: templates/knowledge-files/ does not exist"
-              errors=$((errors + 1))
-            fi
+        echo ""
+        echo "--- templates/knowledge-files/ 目录 ---"
+        if [[ -d "templates/knowledge-files" ]]; then
+          echo "  OK: templates/knowledge-files/ exists"
+        else
+          echo "  MISSING: templates/knowledge-files/ does not exist"
+          errors=$((errors + 1))
+        fi
 
-            echo ""
-            echo "--- 不应存在的业务目录 ---"
+        echo ""
+        echo "--- 不应存在的业务目录 ---"
 
-            forbidden_dirs="
-              src
-              tests
-              specs
-              reports
-            "
+        forbidden_dirs="
+          src
+          tests
+          specs
+          reports
+        "
 
-            for d in $forbidden_dirs; do
-              if [ -d "$d" ]; then
-                echo "  WARNING: $d/ should not exist in template repo"
-                errors=$((errors + 1))
-              else
-                echo "  OK: $d/ not found (as expected)"
-              fi
-            done
+        for d in $forbidden_dirs; do
+          if [[ -d "$d" ]]; then
+            echo "  WARNING: $d/ should not exist in template repo"
+            errors=$((errors + 1))
+          else
+            echo "  OK: $d/ not found (as expected)"
+          fi
+        done
 
-            echo ""
-            echo "--- 不应存在的构建产物 ---"
+        echo ""
+        echo "--- 不应存在的构建产物 ---"
 
-            forbidden_files="
-              coverage.xml
-              .coverage
-            "
+        forbidden_files="
+          coverage.xml
+          .coverage
+        "
 
-            for f in $forbidden_files; do
-              if [ -f "$f" ]; then
-                echo "  WARNING: $f should not exist in template repo"
-                errors=$((errors + 1))
-              else
-                echo "  OK: $f not found (as expected)"
-              fi
-            done
+        for f in $forbidden_files; do
+          if [[ -f "$f" ]]; then
+            echo "  WARNING: $f should not exist in template repo"
+            errors=$((errors + 1))
+          else
+            echo "  OK: $f not found (as expected)"
+          fi
+        done
 
-            echo ""
-            echo "--- 不应存在的缓存目录 ---"
-            if [ -d ".pytest_cache" ]; then
-              echo "  WARNING: .pytest_cache/ should not exist in template repo"
-              errors=$((errors + 1))
-            else
-              echo "  OK: .pytest_cache/ not found (as expected)"
-            fi
+        echo ""
+        echo "--- 不应存在的缓存目录 ---"
+        if [[ -d ".pytest_cache" ]]; then
+          echo "  WARNING: .pytest_cache/ should not exist in template repo"
+          errors=$((errors + 1))
+        else
+          echo "  OK: .pytest_cache/ not found (as expected)"
+        fi
 
-            echo ""
-            echo "--- 检查硬编码敏感信息 ---"
+        echo ""
+        echo "--- 检查硬编码敏感信息 ---"
 
-            # 仅检查根目录配置文件，排除：
-            #   - scripts/ (脚本中环境变量引用是合法的)
-            #   - docs/    (文档中示例说明是合法的)
-            #   - templates/ (模板中说明是合法的)
-            #   - .git/ .cnb.yml 自身
-            scan_dirs=".codebuddy"
-            real=""
-            for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
-              hits=$(grep -rI "$chk_pattern" $scan_dirs 2>/dev/null || true)
-              # 过滤包含 < 的占位符行
-              hits=$(echo "$hits" | grep -v "<" || true)
-              if [ -n "$hits" ]; then
-                real="${real}${hits}
-"
-              fi
-            done
-            # 额外检查根目录的 yml/md/json 文件（排除 .cnb.yml）
-            for f in *.yml *.md *.json 2>/dev/null; do
-              if [ "$f" = ".cnb.yml" ]; then continue; fi
-              hits=$(grep -HI "TAPD_API_" "$f" 2>/dev/null || true)
-              hits=$(echo "$hits" | grep -v "<" || true)
-              if [ -n "$hits" ]; then
-                real="${real}${hits}
-"
-              fi
-            done
-            if [ -n "$real" ]; then
-              echo "  WARNING: potential hardcoded secrets found:"
-              echo "$real"
-              errors=$((errors + 1))
-            else
-              echo "  OK: no hardcoded secrets found"
-            fi
+        scan_dirs=".codebuddy"
+        real=""
+        for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
+          hits=$(grep -rI "$chk_pattern" $scan_dirs 2>/dev/null || true)
+          hits=$(echo "$hits" | grep -v "<" || true)
+          if [[ -n "$hits" ]]; then
+            real="${real}${hits}\n"
+          fi
+        done
+        for f in *.yml *.md *.json 2>/dev/null; do
+          if [[ "$f" = ".cnb.yml" ]]; then continue; fi
+          hits=$(grep -HI "TAPD_API_" "$f" 2>/dev/null || true)
+          hits=$(echo "$hits" | grep -v "<" || true)
+          if [[ -n "$hits" ]]; then
+            real="${real}${hits}\n"
+          fi
+        done
+        if [[ -n "$real" ]]; then
+          echo "  WARNING: potential hardcoded secrets found:"
+          echo "$real"
+          errors=$((errors + 1))
+        else
+          echo "  OK: no hardcoded secrets found"
+        fi
 
-            echo ""
-            if [ "$errors" -gt 0 ]; then
-              echo "=== 自检失败: $errors 个问题 ==="
-              exit 1
-            else
-              echo "=== 自检全部通过 ==="
-              exit 0
-            fi
+        echo ""
+        if [[ "$errors" -gt 0 ]]; then
+          echo "=== 自检失败: $errors 个问题 ==="
+          exit 1
+        else
+          echo "=== 自检全部通过 ==="
+          exit 0
+        fi
+
+push:
+  branches:
+    - main
+  stages:
+    - name: Validate template files
+      image: python:3.11-slim
+      script: |
+        set -e
+        echo "=== 模板仓库 Push 自检 ==="
+
+        errors=0
+
+        echo ""
+        echo "--- 必须存在的模板文件 ---"
+
+        required_files="
+          README.md
+          NEW_PROJECT_SETUP.md
+          workflow.config.example.yml
+          templates/autonomous-workflow-rules-template.mdc
+          templates/newdev-command-template.md
+          templates/epicdev-command-template.md
+          templates/iteration-command-template.md
+          templates/dailymaintain-command-template.md
+          templates/tapd-requirement-template.md
+          templates/cnb-pipeline-template.yml
+          templates/rules/ExecutionGuardRules.mdc
+          templates/rules/EffectFeedbackLoopRules.mdc
+          templates/rules/ExperienceLayeringRules.mdc
+          templates/rules/WorkflowCompletionRules.mdc
+          templates/rules/HumanInterventionRules.mdc
+          templates/rules/EpicRequirementDecompositionRules.mdc
+          templates/rules/IterationLifecycleRules.mdc
+          docs/workflow-template/REUSE_CHECKLIST.md
+          scripts/validate_template.py
+          .codebuddy/commands/newdev.md
+          .codebuddy/commands/epicdev.md
+          .codebuddy/commands/iteration.md
+          .codebuddy/commands/dailymaintain.md
+        "
+
+        for f in $required_files; do
+          if [[ -f "$f" ]]; then
+            echo "  OK: $f"
+          else
+            echo "  MISSING: $f"
+            errors=$((errors + 1))
+          fi
+        done
+
+        echo ""
+        echo "--- templates/knowledge-files/ 目录 ---"
+        if [[ -d "templates/knowledge-files" ]]; then
+          echo "  OK: templates/knowledge-files/ exists"
+        else
+          echo "  MISSING: templates/knowledge-files/ does not exist"
+          errors=$((errors + 1))
+        fi
+
+        echo ""
+        echo "--- 不应存在的业务目录 ---"
+
+        forbidden_dirs="
+          src
+          tests
+          specs
+          reports
+        "
+
+        for d in $forbidden_dirs; do
+          if [[ -d "$d" ]]; then
+            echo "  WARNING: $d/ should not exist in template repo"
+            errors=$((errors + 1))
+          else
+            echo "  OK: $d/ not found (as expected)"
+          fi
+        done
+
+        echo ""
+        echo "--- 不应存在的构建产物 ---"
+
+        forbidden_files="
+          coverage.xml
+          .coverage
+        "
+
+        for f in $forbidden_files; do
+          if [[ -f "$f" ]]; then
+            echo "  WARNING: $f should not exist in template repo"
+            errors=$((errors + 1))
+          else
+            echo "  OK: $f not found (as expected)"
+          fi
+        done
+
+        echo ""
+        echo "--- 不应存在的缓存目录 ---"
+        if [[ -d ".pytest_cache" ]]; then
+          echo "  WARNING: .pytest_cache/ should not exist in template repo"
+          errors=$((errors + 1))
+        else
+          echo "  OK: .pytest_cache/ not found (as expected)"
+        fi
+
+        echo ""
+        echo "--- 检查硬编码敏感信息 ---"
+
+        scan_dirs=".codebuddy"
+        real=""
+        for chk_pattern in TAPD_API_USER TAPD_API_PASSWORD TAPD_API_TOKEN TAPD_API_SECRET TAPD_API_KEY; do
+          hits=$(grep -rI "$chk_pattern" $scan_dirs 2>/dev/null || true)
+          hits=$(echo "$hits" | grep -v "<" || true)
+          if [[ -n "$hits" ]]; then
+            real="${real}${hits}\n"
+          fi
+        done
+        for f in *.yml *.md *.json 2>/dev/null; do
+          if [[ "$f" = ".cnb.yml" ]]; then continue; fi
+          hits=$(grep -HI "TAPD_API_" "$f" 2>/dev/null || true)
+          hits=$(echo "$hits" | grep -v "<" || true)
+          if [[ -n "$hits" ]]; then
+            real="${real}${hits}\n"
+          fi
+        done
+        if [[ -n "$real" ]]; then
+          echo "  WARNING: potential hardcoded secrets found:"
+          echo "$real"
+          errors=$((errors + 1))
+        else
+          echo "  OK: no hardcoded secrets found"
+        fi
+
+        echo ""
+        if [[ "$errors" -gt 0 ]]; then
+          echo "=== 自检失败: $errors 个问题 ==="
+          exit 1
+        else
+          echo "=== 自检全部通过 ==="
+          exit 0
+        fi

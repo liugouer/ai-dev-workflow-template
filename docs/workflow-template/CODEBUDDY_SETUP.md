@@ -132,7 +132,73 @@ feature/{BIZ_PREFIX}-v{version}_{feature_desc}
 4. 创建 TAPD 需求
 5. 自动执行完整研发闭环
 
-## 6. 爱穿搭项目参考（供对比）
+## 6. 国内网络适配（gradio_client / HuggingFace Space）
+
+当通过 `gradio_client` 调用境外 HuggingFace Space 时，国内环境需要额外网络配置。
+
+### 问题
+
+企业网络代理会拦截 `gradio_client` 对 `*.hf.space` 的 WebSocket 连接，导致超时或连接失败。
+
+### 解决方案
+
+```bash
+# 启动前设置
+export NO_PROXY="*"                       # 禁用代理
+export HF_HUB_DISABLE_SSL_VERIFY=1        # 禁用 SSL 验证
+```
+
+代码中也需要额外配置：
+
+```python
+import gradio_client
+
+client = gradio_client.Client(
+    space_url,
+    hf_token=token,
+    ssl_verify=False,                     # gradio_client 级 SSL 禁用
+)
+```
+
+### 完整启动命令示例
+
+```bash
+# Windows PowerShell
+$env:{BIZ_PREFIX}_MODEL_MODE="hf"
+$env:NO_PROXY="*"
+uvicorn src.main:app --reload
+
+# macOS / Linux
+export {BIZ_PREFIX}_MODEL_MODE=hf
+export NO_PROXY=*
+uvicorn src.main:app --reload
+```
+
+### 测试注意事项
+
+测试 HuggingFace Space 客户端时，必须 mock 所有外部网络调用，确保测试不依赖真实网络：
+
+```python
+@patch("{biz}.services.model_adapter.gradio_client.Client")
+@patch("PIL.Image.open")
+def test_hf_success(self, mock_pil_open, mock_client_cls):
+    mock_client = MagicMock()
+    mock_client.predict.return_value = "result_path"
+    mock_client_cls.return_value = mock_client
+    # ...
+```
+
+### 常见错误处理
+
+| 错误消息 | 原因 | 处理 |
+|----------|------|------|
+| `no space is running` | Space 休眠中（ZeroGPU）| 等待 1-2 分钟重试 |
+| `quota exceeded` | ZeroGPU 配额用尽 | 换时段或用 HF Token 提额 |
+| `queue is full` | 并发请求过多 | 等待后重试 |
+| `ConnectionError` | 代理拦截 | 设置 `NO_PROXY=*` |
+| `SSLError` | SSL 验证失败 | 设置 `ssl_verify=False` |
+
+## 7. 爱穿搭项目参考（供对比）
 
 ### Rules 中需要替换的值
 

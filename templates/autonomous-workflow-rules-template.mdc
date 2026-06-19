@@ -6,11 +6,31 @@ alwaysApply: true
 
 # AutonomousWorkflowRules
 
+## 0. 配套规则引用
+
+本规则是总控规则，执行时必须同时遵守以下配套规则：
+
+| 规则文件 | 职责 |
+|----------|------|
+| `ExecutionGuardRules.mdc` | 执行护栏：每次操作前后强制预检、分支保护、本地验证、提交推送、MR 检查与闭环报告 |
+| `EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环：问题复现、修复规则、本地验证、知识库同步、CNB 检查 |
+| `ExperienceLayeringRules.mdc` | 经验分层沉淀：区分业务经验/通用经验/混合经验、沉淀位置映射、禁止沉淀规则 |
+| `WorkflowCompletionRules.mdc` | 闭环完成判定：PR 流水线 + Push 流水线全部通过、TAPD 归档成功后才算完成 |
+| `HumanInterventionRules.mdc` | 人工介入断点：暂停条件、密钥处理、恢复执行规则、完成定义 |
+| `EpicRequirementDecompositionRules.mdc` | 大功能拆解：拆解为最小需求单元、批量创建、顺序执行、分批规则 |
+| `IterationLifecycleRules.mdc` | 迭代生命周期：迭代启动、每日维护、版本收口、经验沉淀、下一轮建议 |
+
+**新业务项目初始化后，必须将以上七个规则文件从 `templates/rules/` 复制到新业务仓库的 `.codebuddy/rules/` 下。**
+
+CodeBuddy 在执行本规则任一阶段时，必须同时遵循上述七条规则的约束。
+
+---
+
 ## 1. 目标
 
 本规则用于驱动 CodeBuddy 自动完成「{BUSINESS_NAME}」的 AI 研发闭环。
 
-CodeBuddy 必须支持四种研发命令和完整的迭代生命周期：
+CodeBuddy 必须支持四种模式：
 
 | 命令 | 用途 | 规则 |
 |------|------|------|
@@ -19,11 +39,14 @@ CodeBuddy 必须支持四种研发命令和完整的迭代生命周期：
 | `/dailymaintain` | 每日维护检查与自动修复 | `IterationLifecycleRules.mdc` |
 | `/iteration` | 迭代启动、状态查询、版本收口 | `IterationLifecycleRules.mdc` |
 
-项目研发必须按迭代循环推进：
+2. TAPD 需求创建并开发模式（`/newdev`）
+   用户输入需求主题后，CodeBuddy 自动生成 TAPD 需求、创建 TAPD 需求，并立即启动研发闭环。
 
-```
-前期规范约束 → 迭代启动 → 大功能拆解 → 最小需求单元创建 → 自动开发 → 每日维护 → 版本收口 → 经验沉淀 → 下一轮迭代
-```
+3. 大功能拆解并批量开发模式（`/epicdev`）
+   用户输入大功能描述后，CodeBuddy 先依据 `EpicRequirementDecompositionRules.mdc` 拆解为最小需求单元，再顺序执行每个需求的研发闭环。
+
+4. 迭代生命周期循环模式（`/iteration` + `/dailymaintain`）
+   项目研发必须按迭代循环推进。单个最小需求使用 `/newdev`。大功能拆解使用 `/epicdev`。每日维护使用 `/dailymaintain`。迭代启动、状态检查和版本收口使用 `/iteration`。所有迭代操作必须依据 `IterationLifecycleRules.mdc`。
 
 最终目标：
 迭代启动 → TAPD 需求创建或读取 → 判断最小需求单元 → 生成 Spec → 创建功能分支 → 代码实现 → 测试与覆盖率检查 → AI Code Review → 自动修复 → 生成归档 JSON → 提交并推送代码 → 创建 MR → 等待 CNB 状态检查 → 状态检查通过后自动合并 MR → 合并后确认 CNB main push 流水线通过 → 确认 TAPD 状态已归档为「已完成」
@@ -61,7 +84,7 @@ CodeBuddy 必须支持四种研发命令和完整的迭代生命周期：
 8. 开发下一个待AI分析需求
 9. 用户粘贴 TAPD 需求链接
 
-### 3.2 创建 TAPD 需求并自动开发
+### 3.2 创建 TAPD 需求并自动开发（`/newdev`）
 
 以下输入都识别为「创建 TAPD 需求并启动自动研发闭环」：
 1. /newdev xxx
@@ -71,17 +94,33 @@ CodeBuddy 必须支持四种研发命令和完整的迭代生命周期：
 
 ### 3.3 大功能拆解并批量开发（`/epicdev`）
 
-以下输入都识别为「大功能拆解并批量开发」，先路由到 `EpicRequirementDecompositionRules.mdc`：
-1. /epicdev --plan xxx
-2. /epicdev --yes xxx
-3. /epicdev xxx
-4. 我要一个 {大功能}
-5. 帮我做一个 {大功能}
-6. 把 {大功能} 拆成需求并自动开发
+以下输入都识别为「大功能拆解并批量开发」：
+1. /epicdev xxx
+2. /epicdev --plan xxx
+3. /epicdev --yes xxx
+4. 我要一个 xxx / 帮我做一个 xxx
+5. 把 xxx 拆成需求并自动开发
 
-当识别到这些触发语时，必须先进入 `EpicRequirementDecompositionRules.mdc` 执行拆解流程，拆解完成后每个子需求再进入本规则的 `/newdev` 闭环。
+当用户输入大功能目标时，CodeBuddy 必须先进入 `EpicRequirementDecompositionRules.mdc`，将大功能拆解为最小需求单元后，再逐个进入 `/newdev` 闭环。
 
-如果输入的主题已经是单一最小需求单元（无需拆解），应提示用户使用 `/newdev` 而非 `/epicdev`。
+### 3.4 迭代生命周期管理（`/iteration`）
+
+以下输入都识别为「迭代生命周期管理」：
+1. /iteration --start {version}
+2. /iteration --status [version]
+3. /iteration --release {version}
+4. 启动 {version} 迭代 / 收口 {version} 迭代
+
+当用户输入迭代操作时，CodeBuddy 必须进入 `IterationLifecycleRules.mdc`。
+
+### 3.5 每日维护（`/dailymaintain`）
+
+以下输入都识别为「每日维护」：
+1. /dailymaintain
+2. 执行今日维护
+3. 检查今日研发闭环状态
+
+当用户输入每日维护时，CodeBuddy 必须进入 `IterationLifecycleRules.mdc` §5。
 
 ---
 

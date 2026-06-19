@@ -29,22 +29,30 @@ cp ../ai-dev-workflow-template/workflow.config.example.yml ./
 cp ../ai-dev-workflow-template/.gitignore ./
 
 # 复制脚本
-cp -r ../ai-dev-workflow-template/scripts/ ./
+cp -r ../ai-dev-workflow-template/scripts/ ./scripts/
 
 # 复制 CodeBuddy 规则模板
 mkdir -p .codebuddy/rules
 cp ../ai-dev-workflow-template/.codebuddy/rules/*.mdc .codebuddy/rules/
 
-# 复制命令模板
-mkdir -p .codebuddy/commands
-cp ../ai-dev-workflow-template/templates/newdev-command-template.md .codebuddy/commands/newdev.md
-cp ../ai-dev-workflow-template/templates/epicdev-command-template.md .codebuddy/commands/epicdev.md
-cp ../ai-dev-workflow-template/templates/iteration-command-template.md .codebuddy/commands/iteration.md
-cp ../ai-dev-workflow-template/templates/dailymaintain-command-template.md .codebuddy/commands/dailymaintain.md
+# 复制通用规则模板（执行护栏、效果修复、经验沉淀、完成判定）
+cp ../ai-dev-workflow-template/templates/rules/*.mdc .codebuddy/rules/
 
 # 复制知识库模板
 cp -r ../ai-dev-workflow-template/.codebuddy/knowledge-template/ .codebuddy/knowledge/
 ```
+
+> **重要：** 新业务项目初始化后必须具备以下规则文件：
+>
+> | 规则文件 | 职责 |
+> |----------|------|
+> | `ExecutionGuardRules.mdc` | 执行护栏：每次操作强制预检、分支保护、本地验证、推送、MR 检查与闭环报告 |
+> | `EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环：问题复现、修复、验证、知识库同步、CNB 检查 |
+> | `ExperienceLayeringRules.mdc` | 经验分层沉淀：区分业务/通用/混合经验、沉淀位置映射、禁止沉淀规则 |
+> | `WorkflowCompletionRules.mdc` | 闭环完成判定：PR + Push 流水线全部通过、TAPD 归档成功才完成 |
+| `HumanInterventionRules.mdc` | 人工介入断点：暂停条件、密钥处理、恢复执行规则 |
+| `EpicRequirementDecompositionRules.mdc` | 大功能拆解：拆解为最小需求单元、批量创建、顺序执行 |
+| `IterationLifecycleRules.mdc` | 迭代生命周期：迭代启动、每日维护、版本收口、经验沉淀 |
 
 ## 步骤 3：配置 TAPD 项目 ID
 
@@ -61,6 +69,9 @@ https://www.tapd.cn/<workspace_id>/...
 | `.codebuddy/rules/AutonomousWorkflowRules.mdc` | `TAPD 项目 ID：{TAPD_WORKSPACE_ID}` |
 | `workflow.config.example.yml` | `workspace_id: "<你的TAPD项目ID>"` |
 | `.codebuddy/commands/newdev.md` | 默认参数区域 |
+| `.codebuddy/commands/epicdev.md` | 默认参数区域 |
+| `.codebuddy/commands/iteration.md` | 默认参数区域 |
+| `.codebuddy/commands/dailymaintain.md` | 默认参数区域 |
 
 ## 步骤 4：配置 TAPD 迭代
 
@@ -227,16 +238,31 @@ imports:
 - ✅ MR 自动合并
 - ✅ TAPD 归档完成
 
-对于 `/epicdev`，还需验证：
-- ✅ 拆解计划合理
-- ✅ 多个需求按依赖顺序执行
-- ✅ 每个需求闭环独立完成
-- ✅ Epic 最终报告输出完整
+## 步骤 12：四种研发模式
 
-对于 `/iteration` 和 `/dailymaintain`，还需验证：
-- ✅ 迭代启动检查完整
-- ✅ 每日维护报告输出正确
-- ✅ 版本收口所有检查项通过
+新项目初始化后支持四种研发模式：
+
+1. **`/newdev`**：单个最小需求单元研发闭环
+   - 输入需求主题或已存在的 TAPD 需求 ID
+   - 自动创建需求（如需）→ Spec → 开发 → 测试 → Review → MR → 合并 → 归档
+
+2. **`/epicdev`**：大功能拆解为多个最小需求单元并顺序执行
+   - 输入大功能描述
+   - 自动拆解为最小需求单元
+   - 逐个创建 TAPD 需求并顺序执行完整闭环
+   - 详情见 `.codebuddy/rules/EpicRequirementDecompositionRules.mdc`
+
+3. **`/iteration`**：迭代生命周期管理
+   - `/iteration --start {version}` — 启动迭代
+   - `/iteration --status` — 检查迭代状态
+   - `/iteration --release {version}` — 收口迭代
+   - 详情见 `.codebuddy/rules/IterationLifecycleRules.mdc`
+
+4. **`/dailymaintain`**：每日维护检查与自动修复
+   - 检查未完成需求、未合并 MR、失败流水线、未提交文件等
+   - 自动修复可修复问题
+   - 输出每日维护报告
+   - 详情见 `.codebuddy/rules/IterationLifecycleRules.mdc` §5
 
 ## 验收自检
 

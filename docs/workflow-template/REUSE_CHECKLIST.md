@@ -13,12 +13,13 @@
 | 5 | `.codebuddy/rules/UnitTestRules.mdc` | 测试规范，通用 | ☐ |
 | 6 | `.codebuddy/rules/WorkflowRules.mdc` | 流程规范，通用 | ☐ |
 | 7 | `.codebuddy/rules/DesignSpecRules.mdc` | Spec 规范，通用 | ☐ |
-| 8 | `.codebuddy/rules/HumanInterventionRules.mdc` | 人工介入断点规则 | ☐ |
-| 9 | `.codebuddy/rules/IterationLifecycleRules.mdc` | 迭代生命周期规则 | ☐ |
-| 10 | `.codebuddy/rules/EpicRequirementDecompositionRules.mdc` | 大功能拆解规则 | ☐ |
-| 11 | `.codebuddy/commands/epicdev.md` | 大功能批量闭环命令 | ☐ |
-| 12 | `.codebuddy/commands/iteration.md` | 迭代生命周期命令 | ☐ |
-| 13 | `.codebuddy/commands/dailymaintain.md` | 每日维护命令 | ☐ |
+| 8 | `.codebuddy/rules/ExecutionGuardRules.mdc` | 执行护栏规则，通用 | ☐ |
+| 9 | `.codebuddy/rules/EffectFeedbackLoopRules.mdc` | 效果反馈修复闭环，通用 | ☐ |
+| 10 | `.codebuddy/rules/ExperienceLayeringRules.mdc` | 经验分层沉淀，通用 | ☐ |
+| 11 | `.codebuddy/rules/WorkflowCompletionRules.mdc` | 闭环完成判定，通用 | ☐ |
+| 12 | `.codebuddy/rules/HumanInterventionRules.mdc` | 人工介入断点，通用 | ☐ |
+| 13 | `.codebuddy/rules/EpicRequirementDecompositionRules.mdc` | 大功能拆解，通用 | ☐ |
+| 14 | `.codebuddy/rules/IterationLifecycleRules.mdc` | 迭代生命周期，通用 | ☐ |
 
 ## ⚠️ 需要修改后使用
 
@@ -28,9 +29,12 @@
 | 2 | `.codebuddy/rules/CodingStandardRules.mdc` | 接口路径、响应格式、需求边界 | ☐ |
 | 3 | `.codebuddy/rules/GitBranchRules.mdc` | biz_prefix、版本号 | ☐ |
 | 4 | `.codebuddy/commands/newdev.md` | TAPD 项目ID、迭代名 | ☐ |
-| 5 | `.cnb.yml` | Docker 镜像、密钥仓库 URL | ☐ |
-| 6 | `requirements.txt` | 新项目依赖列表 | ☐ |
-| 7 | `README.md` | 新项目介绍 | ☐ |
+| 5 | `.codebuddy/commands/epicdev.md` | TAPD 项目ID、迭代名 | ☐ |
+| 6 | `.codebuddy/commands/iteration.md` | TAPD 项目ID、迭代名 | ☐ |
+| 7 | `.codebuddy/commands/dailymaintain.md` | TAPD 项目ID、迭代名 | ☐ |
+| 8 | `.cnb.yml` | Docker 镜像、密钥仓库 URL | ☐ |
+| 9 | `requirements.txt` | 新项目依赖列表 | ☐ |
+| 10 | `README.md` | 新项目介绍 | ☐ |
 
 ## 🔄 必须完全重写
 
@@ -76,18 +80,15 @@
 | 1 | `/newdev 冒烟测试需求` | TAPD 需求自动创建 | ☐ |
 | 2 | Spec 自动生成 | specs/ 下生成 Spec 文件 | ☐ |
 | 3 | 分支自动创建 | feature/ 分支创建成功 | ☐ |
-| 4 | 代码自动实现 | 代码完成功能 | ☐ |
-| 5 | pytest 全部通过 | 0 failed | ☐ |
-| 6 | 覆盖率 >= 90% | 门禁通过 | ☐ |
-| 7 | AI Review >= 95 | 无 Critical | ☐ |
-| 8 | MR 自动创建 | CNB 上有 MR | ☐ |
-| 9 | MR 自动合并 | 合并到 main | ☐ |
-| 10 | TAPD 归档完成 | 状态变为「已完成」 | ☐ |
-| 11 | `/epicdev --plan 大功能` | 拆解计划表格输出 | ☐ |
-| 12 | `/epicdev --yes 大功能` | 多需求按序闭环完成 | ☐ |
-| 13 | `/iteration --start v0.1.0` | 迭代启动+需求拆解正确 | ☐ |
-| 14 | `/dailymaintain` | 每日维护报告输出正确 | ☐ |
-| 15 | `/iteration --release v0.1.0` | 版本收口所有检查通过 | ☐ |
+| 4 | 执行护栏预检通过 | 规则、知识库、分支、git status 预检 | ☐ |
+| 5 | 代码自动实现 | 代码完成功能 | ☐ |
+| 6 | pytest 全部通过 | 0 failed | ☐ |
+| 7 | 覆盖率 >= 90% | 门禁通过 | ☐ |
+| 8 | AI Review >= 95 | 无 Critical | ☐ |
+| 9 | MR 自动创建 | CNB 上有 MR | ☐ |
+| 10 | MR 自动合并 | 合并到 main | ☐ |
+| 11 | TAPD 归档完成 | 状态变为「已完成」 | ☐ |
+| 12 | 闭环报告输出 | 包含经验沉淀段落 | ☐ |
 
 ## 快速参考：爱穿搭→新项目映射表
 
