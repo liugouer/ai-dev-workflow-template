@@ -40,6 +40,7 @@ alwaysApply: true
 pytest --cov=src --cov-report=term-missing --cov-report=xml
 ```
 
+
 ## 自愈规则
 
 如果测试失败，AI 必须：
@@ -50,3 +51,35 @@ pytest --cov=src --cov-report=term-missing --cov-report=xml
 4. 如果测试断言不合理，必须说明原因再修正测试。
 5. 修复后重新运行测试。
 6. 直到测试通过且覆盖率达标。
+
+## 外部依赖 Mock 注意事项
+
+### 图片处理库（PIL/Pillow）
+
+当被测函数**内部先调用 `PIL.Image.open()` 等图片操作，再调用外部服务**时，测试必须同时 mock PIL：
+
+```python
+# ✅ 正确：同时 mock PIL 和外部客户端
+@patch("PIL.Image.open")
+@patch("module.external_client.Client")
+def test_xxx(self, mock_client, mock_pil_open):
+    mock_img = MagicMock()
+    mock_img.convert.return_value = mock_img
+    mock_pil_open.return_value = mock_img
+    # ... 测试逻辑
+
+# ❌ 错误：只 mock 外部客户端，不 mock PIL
+@patch("module.external_client.Client")
+def test_xxx(self, mock_client):
+    # PIL.Image.open(b"\\x00") 会在 mock_client 之前就抛异常
+    model.generate(person_bytes, cloth_bytes)
+```
+
+**原因**：测试数据（如 `b"\\x00"`）不是有效图片格式，PIL 会在被测函数进入 mock 客户端逻辑之前就抛出异常，导致测试无法走到目标断言点。
+
+### 通用原则
+
+当函数执行顺序为「预处理 → 外部调用」时：
+1. 如果预处理步骤依赖外部库解析测试数据，必须 mock 该外部库
+2. Mock 装饰器必须按参数传入顺序（从下往上），PIL mock 在最外层
+3. Mock 返回的图片对象必须支持链式调用（如 `.convert()`）
