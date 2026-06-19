@@ -179,11 +179,53 @@ imports:
 
 ## 步骤 11：冒烟测试验证
 
+### 11.1 单需求模式（`/newdev`）
+
 在 CodeBuddy 中输入：
 
 ```
 /newdev 冒烟测试：返回 hello world 接口
 ```
+
+### 11.2 大功能批量模式（`/epicdev`）
+
+在 CodeBuddy 中输入：
+
+```
+/epicdev --plan 用户管理功能
+```
+
+先确认拆解计划正确，再输入：
+
+```
+/epicdev --yes 用户管理功能
+```
+
+### 11.3 迭代生命周期模式（`/iteration`）
+
+在 CodeBuddy 中输入：
+
+```
+/iteration --start v0.1.0
+```
+
+确认迭代范围后，观察需求拆解和创建是否正常。收口时输入：
+
+```
+/iteration --release v0.1.0
+```
+
+### 11.4 每日维护模式（`/dailymaintain`）
+
+在 CodeBuddy 中输入：
+
+```
+/dailymaintain
+```
+
+观察是否自动检查需求、MR、流水线、Git 状态并输出维护报告。
+
+### 11.5 验收标准
 
 观察以下流程是否全部自动完成：
 
@@ -237,6 +279,9 @@ imports:
 | Rules 中的业务参数已替换 | ☐ |
 | .cnb.yml 已替换业务命令 | ☐ |
 | 冒烟测试需求通过完整闭环 | ☐ |
+| `/epicdev` 大功能拆解测试通过 | ☐ |
+| `/iteration --start` 迭代启动测试通过 | ☐ |
+| `/dailymaintain` 每日维护测试通过 | ☐ |
 
 ## 爱穿搭项目参考值（供对比）
 

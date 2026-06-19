@@ -4,7 +4,29 @@
 
 本仓库是一套**通用 AI 研发自动化闭环工作流模板**，从「爱穿搭 AI 试衣」项目 (`ai-tryon-workflow`) 的实际落地经验中萃取而来。
 
-适用于通过 **TAPD** 管理需求、**CodeBuddy** 辅助开发、**CNB** 管理 CI/CD 的任意项目。
+适用通过 **TAPD** 管理需求、**CodeBuddy** 辅助开发、**CNB** 管理 CI/CD 的任意项目。
+
+支持四种研发命令和完整的迭代生命周期：
+
+| 命令 | 用途 | 适用场景 |
+|------|------|----------|
+| `/newdev` | 单需求闭环 | 单一最小需求单元，一次自动完成 Spec→开发→测试→Review→MR→合并→归档 |
+| `/epicdev` | 大功能批量闭环 | 大功能先拆解为多个最小需求单元，批量创建 TAPD 需求，按依赖顺序逐个自动执行闭环 |
+| `/dailymaintain` | 每日维护 | 检查未完成需求、未合并 MR、失败流水线、未提交代码、知识库同步、经验沉淀 |
+| `/iteration` | 迭代生命周期 | 迭代启动（`--start`）、状态查询（`--status`）、版本收口（`--release`） |
+
+完整研发方式：
+
+```
+1. 前期配置规则和知识库
+2. /iteration --start v0.x.0     # 启动迭代
+3. /epicdev --plan {大功能}        # 拆解计划
+4. /epicdev --yes {大功能}         # 批量执行
+5. /dailymaintain                  # 每日维护
+6. /iteration --release v0.x.0    # 版本收口
+7. 同步通用经验到模板仓库
+8. 进入下一轮迭代
+```
 
 ## 完整研发周期
 
@@ -135,6 +157,9 @@ ai-dev-workflow-template/
 │   ├── iteration-command-template.md
 │   ├── dailymaintain-command-template.md
 │   ├── autonomous-workflow-rules-template.mdc
+│   ├── EpicRequirementDecompositionRules-template.mdc
+│   ├── IterationLifecycleRules-template.mdc
+│   ├── HumanInterventionRules-template.mdc
 │   ├── cnb-pipeline-template.yml        # CNB 流水线模板（新业务项目复制此文件）
 │   ├── rules/                           # 通用规则模板（新项目复制到 .codebuddy/rules/）
 │   │   ├── ExecutionGuardRules.mdc
