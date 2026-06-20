@@ -4,10 +4,12 @@
 # ── TAPD 配置 ──
 tapd:
   workspace_id: "<你的TAPD项目ID>"        # 必填，如 31917999
-  entity_type: "stories"                  # 需求类型，通常不修改
+  entity_type: "tasks"                     # ⚠️ 优先用「任务」(tasks)，工作流: open→progressing→done→end。
+                                            # 「需求」(stories) 工作流: start→...→resolved→end，无 done 状态。
+                                            # 仅当项目不支持任务类型时才用 stories。见 docs/workflow-template/TAPD_SETUP.md
   default_iteration: "<你的默认迭代>"      # 如 tryon-v0.1.0-mvp
   default_priority: "高"                  # 高/中/低
-  initial_status: "待AI分析"              # 初始状态
+  initial_status: "open"                  # 任务类型初始状态为 open
 
   # TAPD 状态流转（通常不修改名称）
   status_flow:

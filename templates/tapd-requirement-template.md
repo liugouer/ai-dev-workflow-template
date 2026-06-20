@@ -44,7 +44,7 @@
 - 禁止实现「本次不做」中的功能
 
 ## 自动化状态字段
-- 初始状态：待AI分析
+- 初始状态：open（任务类型使用 TAPD 标准工作流 open→progressing→done→end）
 - 迭代：{DEFAULT_ITERATION}
 - 优先级：高
 ```

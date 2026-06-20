@@ -56,8 +56,11 @@ CodeBuddy 必须支持四种模式：
 ## 2. 默认参数
 
 * TAPD 项目 ID：{TAPD_WORKSPACE_ID}
-* TAPD 需求类型：stories
-* TAPD 初始状态：待AI分析
+* TAPD 需求类型：tasks（任务，workitem_type_id 取决于你的 TAPD 项目配置）
+  > ⚠️ **重要：优先使用「任务」类型（tasks）**，因为其标准工作流为 open→progressing→done→end，有明确的 `done` 状态。
+  > 「需求」类型（stories）的标准工作流为 start→planning→developing→...→resolved→end，terminal 状态为 `end`，缺少 `done` 状态，不适合 AI 自动化闭环的状态跟踪。
+  > 如果你的 TAPD 项目「任务」类型不可用，再考虑使用「需求」类型，但需在 `workflow.config.yml` 中明确 entity_type 并适配状态名称。
+* TAPD 初始状态：open
 * 默认迭代：{DEFAULT_ITERATION}
 * 默认优先级：高
 * 目标分支：main
@@ -169,7 +172,7 @@ CodeBuddy 必须支持四种模式：
 检查步骤：
 
 1. 判断本轮是否产生业务经验 → 如果是，更新对应的 `.codebuddy/knowledge/` 文件
-2. 判断本轮是否产生通用经验 → 如果是，记录同步建议（不执行跨仓库同步）
+2. 判断本轮是否产生通用经验 → 如果是，**必须执行跨仓库同步**：clone 模板仓库 → 更新 → push CNB + push GitHub
 3. 判断是否存在混合经验 → 如果是，先拆分再分别处理
 4. 检查是否存在禁止沉淀的敏感信息 → 如果有，从沉淀内容中移除
 5. 将经验沉淀结果写入最终报告的经验沉淀段落
@@ -393,7 +396,18 @@ MR 与流水线：
 
 ### 9.3 通用经验沉淀
 
-如果本轮需求产生的经验可以被多个业务项目复用，则必须建议同步到 `ai-dev-workflow-template` 模板仓库。
+如果本轮需求产生的经验可以被多个业务项目复用，则**必须同步**到 `ai-dev-workflow-template` 模板仓库（CNB + GitHub 双平台推送）。
+
+**同步步骤**（强制执行）：
+1. Clone 模板仓库到本地：`git clone <模板仓库地址>`
+2. 更新相关模板文件（规则模板、命令模板、配置示例等）
+3. 提交并推送到 CNB：`git push origin main`
+4. 添加 GitHub 远程：`git remote add github <GitHub仓库地址>`
+5. 推送到 GitHub：`git push github main`
+
+**双平台仓库地址**：
+- CNB：`<你的org>/ai-dev-workflow-template`
+- GitHub：`<你的GitHub用户名>/ai-dev-workflow-template`
 
 通用经验范围：TAPD 需求创建规则、TAPD 状态流转规则、`/newdev` 命令模式、Spec 生成规范、分支命名规范、测试覆盖率门禁、AI Code Review 门禁、自动修复策略、MR 自动合并前置条件、CNB 流水线模式、TAPD 自动归档模式、知识库同步检查机制、新项目初始化步骤、跨项目复用清单。
 

@@ -49,11 +49,11 @@
 
 使用 TAPD MCP `create_story_or_task` 逐个创建需求：
 
-* `entity_type`: `"stories"`
+* `entity_type`: `"tasks"`（优先使用任务类型；TAPD 任务工作流为 open→progressing→done→end，更适合 AI 自动化闭环。仅在任务类型不可用时使用 `"stories"`）
 * `workspace_id`: `{TAPD_WORKSPACE_ID}`
 * `name`: 拆解后的需求标题
 * `description`: 需求正文
-* `status`: `"待AI分析"`
+* `status`: `"open"`
 * `iteration`: `{DEFAULT_ITERATION}`
 
 ### 第四步：顺序执行需求闭环
