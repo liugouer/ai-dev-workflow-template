@@ -28,6 +28,117 @@
 8. 进入下一轮迭代
 ```
 
+## 如何使用
+
+### 一页速览
+
+这套工作流按迭代循环推进：先定范围 → 拆需求 → 自动开发 → 每日维护 → 版本收口 → 经验沉淀 → 下一轮迭代。
+
+| 场景 | 命令 | 说明 |
+|------|------|------|
+| 新项目初始化 | 初始化提示词 | 复制模板、生成业务知识库、初始化 Rules/Commands/CNB/FastAPI/pytest |
+| 启动迭代 | `/iteration --start v0.x.0` | 明确本轮目标、边界、风险、依赖、人工介入点 |
+| 开发大功能 | `/epicdev --plan` / `--yes` | 拆成多个最小需求，在 TAPD 创建并顺序开发 |
+| 开发小功能 | `/newdev --yes 增加xxx` | 自动创建需求并完成研发闭环 |
+| 每日维护 | `/dailymaintain` | 检查 TAPD、MR、CNB、未提交文件、知识库和模板经验 |
+| 收口版本 | `/iteration --release v0.x.0` | 检查本轮完成度，归档版本，生成下一轮建议 |
+
+### 详细流程
+
+#### 1. 新项目初始化
+
+新业务项目必须先初始化，再开始开发。初始化提示词模板：
+
+> 请基于 ai-dev-workflow-template 初始化当前新业务项目。
+> 当前项目路径：E:\workspace\{PROJECT_NAME}
+> 模板仓库路径：E:\workspace\ai-dev-workflow-template
+> 业务名称：{BUSINESS_NAME}
+> ...
+> 请自动生成业务知识库，初始化 Rules、Commands、CNB、FastAPI、pytest，并提交 push。
+
+详见 [新项目初始化指南](./NEW_PROJECT_SETUP.md)。
+
+#### 2. 迭代生命周期
+
+一个迭代版本是一批最小需求单元。建议每天维护一次，用完一轮就收口，沉淀经验，然后进入下一轮。
+
+| 阶段 | 命令 | 必须完成 |
+|------|------|----------|
+| 迭代启动 | `/iteration --start v0.x.0` | 读取规则和知识库，明确目标和非目标，输出迭代计划 |
+| 需求开发 | `/epicdev` 或 `/newdev` | 大功能先拆解，小需求直接闭环 |
+| 每日维护 | `/dailymaintain` | 检查未完成需求、失败流水线、未提交文件、知识库落后 |
+| 版本收口 | `/iteration --release v0.x.0` | 确认需求完成、MR 合并、流水线通过、TAPD 归档、经验沉淀 |
+
+#### 3. 大功能拆解
+
+大功能不要直接交给 `/newdev`，先用 `/epicdev --plan` 拆解：
+
+```
+/epicdev --plan 我要增加用户登录、个人中心和历史记录功能
+```
+
+确认拆解合理后：
+
+```
+/epicdev --yes 我要增加用户登录、个人中心和历史记录功能
+```
+
+**约束**：默认最多拆解 5 个需求，每次最多自动执行 3 个，有依赖关系的按顺序执行。
+
+#### 4. 单个需求开发
+
+```
+/newdev --yes 增加历史记录查询接口
+```
+
+标准闭环：创建 TAPD 需求 → 读取规则和知识库 → 生成 Spec → 创建分支 → 开发代码 → 写测试 → pytest → 覆盖率检查 → AI Review → 自动修复 → commit → push → MR → CNB 检查 → 自动合并 → TAPD 归档。
+
+#### 5. 每日维护
+
+每天执行一次 `/dailymaintain`，用于发现遗漏的同步、MR、CNB、知识库和模板经验问题。
+
+#### 6. 效果反馈修复
+
+页面效果失败或 CNB 失败时，进入修复闭环：
+
+```
+页面效果失败：点击按钮后没有显示结果图。
+请进入 EffectFeedbackLoopRules 修复闭环。
+```
+
+#### 7. 人工介入
+
+遇到密钥配置、MCP 授权、服务器购买、域名配置等需暂停。完成配置后输入：
+
+```
+人工配置已完成，请继续闭环。
+```
+
+#### 8. 版本收口
+
+```
+/iteration --release v0.x.0
+```
+
+#### 9. 经验沉淀
+
+- **业务经验** → 当前业务仓库 `.codebuddy/knowledge/`
+- **通用经验** → `ai-dev-workflow-template` 模板仓库
+
+### 完成判定清单
+
+每次报告完成，必须包含：
+
+- [ ] 本地测试通过
+- [ ] 覆盖率达标（>= 90%）
+- [ ] AI Review 通过（>= 95）
+- [ ] 知识库已更新
+- [ ] git status clean
+- [ ] commit 已 push
+- [ ] MR 已创建/更新
+- [ ] CNB 流水线通过
+- [ ] TAPD 已归档
+
 ## 完整研发周期
 
 ```
@@ -193,9 +304,41 @@ ai-dev-workflow-template/
 | 覆盖率门禁 | 需替换为对应语言的覆盖率工具 |
 | 测试命令 | 需替换为对应语言的测试框架 |
 
+## 实现效果
+
+以下是使用本工作流模板已落地的业务项目效果展示：
+
+### AI 试衣功能
+
+「爱穿搭」AI 试衣 — 上传人物照片和服装照片，AI 自动生成虚拟试衣效果。
+
+![AI试衣效果](./docs/assets/ai-tryon-demo.png)
+
+### FAQ 智能问答系统
+
+FAQ 问答系统 — 基于知识库的智能问答，支持多轮对话和上下文理解。
+
+![FAQ问答系统效果](./docs/assets/faq-system-demo.png)
+
+### 外卖商家管理与随机推荐
+
+外卖商家管理与随机推荐微信小程序 — 商家信息管理、随机推荐、多维度筛选。
+
+![外卖商家管理效果1](./docs/assets/merchant-management-1.png)
+
+![外卖商家管理效果2](./docs/assets/merchant-management-2.png)
+
 ## 参考项目
 
-本模板的参考实现：[ai-tryon-workflow](https://cnb.cool/liugouer-2026/ai-tryon-workflow) — 「爱穿搭」AI 试衣项目，所有需求均通过本模板描述的工作流自动完成。
+本模板的参考实现：
+
+| 项目 | 链接 | 说明 |
+|------|------|------|
+| ai-tryon-workflow | [CNB](https://cnb.cool/liugouer-2026/ai-tryon-workflow) | 「爱穿搭」AI 试衣 |
+| ai-faq-workflow | CNB | FAQ 智能问答系统 |
+| ai-merchant-workflow | CNB | 外卖商家管理与随机推荐 |
+
+所有需求均通过本模板描述的工作流自动完成。
 
 ## License
 
